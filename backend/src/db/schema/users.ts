@@ -28,6 +28,7 @@ export const users = pgTable('users', {
   is_active: boolean('is_active').default(true),
   is_premium: boolean('is_premium').default(false),
   premium_expires_at: timestamp('premium_expires_at'),
+  role: varchar('role', { length: 20 }).default('student'), // 'student', 'admin', 'super_admin'
   
   // Authentication
   last_login_at: timestamp('last_login_at'),
@@ -64,6 +65,7 @@ export const insertUserSchema = createInsertSchema(users, {
   phone_number: z.string().optional(),
   gender: z.enum(['male', 'female', 'other']).optional(),
   grade_level: z.enum(['12', 'alumni', 'gap_year']).optional(),
+  role: z.enum(['student', 'admin', 'super_admin']).default('student'),
   profile_visibility: z.enum(['public', 'friends', 'private']).default('public'),
   timezone: z.string().default('Asia/Jakarta'),
   language: z.string().length(2).default('id'),

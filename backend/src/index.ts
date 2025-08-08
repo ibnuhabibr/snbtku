@@ -7,6 +7,9 @@ import swagger from '@fastify/swagger';
 import swaggerUi from '@fastify/swagger-ui';
 import { config } from 'dotenv';
 import { checkDatabaseConnection } from './db/index.js';
+import { authRoutes, userRoutes } from './routes/authRoutes.js';
+import { tryoutRoutes } from './routes/tryoutRoutes.js';
+import { adminRoutes } from './routes/adminRoutes.js';
 
 // Load environment variables
 config();
@@ -55,12 +58,21 @@ await fastify.register(swagger, {
     schemes: ['http', 'https'],
     consumes: ['application/json'],
     produces: ['application/json'],
+    securityDefinitions: {
+      bearerAuth: {
+        type: 'apiKey',
+        name: 'Authorization',
+        in: 'header',
+        description: 'Enter JWT token in format: Bearer <token>'
+      }
+    },
     tags: [
-      { name: 'auth', description: 'Authentication endpoints' },
-      { name: 'users', description: 'User management endpoints' },
-      { name: 'questions', description: 'Question management endpoints' },
-      { name: 'tryouts', description: 'Tryout management endpoints' },
-      { name: 'analytics', description: 'Analytics endpoints' },
+      { name: 'Authentication', description: 'Authentication endpoints' },
+      { name: 'Users', description: 'User management endpoints' },
+      { name: 'Admin', description: 'Admin management endpoints' },
+      { name: 'Tryouts', description: 'Tryout management endpoints' },
+      { name: 'Questions', description: 'Question management endpoints' },
+      { name: 'Analytics', description: 'Analytics endpoints' },
     ],
   },
 });
@@ -117,11 +129,12 @@ fastify.get('/', async (request, reply) => {
   };
 });
 
-// Register routes (will be created later)
-// await fastify.register(authRoutes, { prefix: '/api/auth' });
-// await fastify.register(userRoutes, { prefix: '/api/users' });
+// Register routes
+await fastify.register(authRoutes);
+await fastify.register(userRoutes);
+await fastify.register(adminRoutes);
+await fastify.register(tryoutRoutes);
 // await fastify.register(questionRoutes, { prefix: '/api/questions' });
-// await fastify.register(tryoutRoutes, { prefix: '/api/tryouts' });
 // await fastify.register(analyticsRoutes, { prefix: '/api/analytics' });
 
 // Error handler
