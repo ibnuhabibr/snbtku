@@ -6,10 +6,14 @@ import jwt from '@fastify/jwt';
 import swagger from '@fastify/swagger';
 import swaggerUi from '@fastify/swagger-ui';
 import { config } from 'dotenv';
-import { checkDatabaseConnection } from './db/index.js';
-import { authRoutes, userRoutes } from './routes/authRoutes.js';
-import { tryoutRoutes } from './routes/tryoutRoutes.js';
-import { adminRoutes } from './routes/adminRoutes.js';
+import { checkDatabaseConnection } from './db/index';
+import { authRoutes, userRoutes } from './routes/authRoutes';
+import { tryoutRoutes } from './routes/tryoutRoutes';
+import { adminRoutes } from './routes/adminRoutes';
+import { rewardRoutes } from './routes/rewardRoutes';
+import { questRoutes } from './routes/questRoutes';
+import { shopRoutes } from './routes/shopRoutes';
+import { socketService } from './services/socketService';
 
 // Load environment variables
 config();
@@ -73,6 +77,8 @@ await fastify.register(swagger, {
       { name: 'Tryouts', description: 'Tryout management endpoints' },
       { name: 'Questions', description: 'Question management endpoints' },
       { name: 'Analytics', description: 'Analytics endpoints' },
+      { name: 'Rewards', description: 'Reward and gamification endpoints' },
+      { name: 'Quests', description: 'Quest and achievement endpoints' },
     ],
   },
 });
@@ -134,6 +140,9 @@ await fastify.register(authRoutes);
 await fastify.register(userRoutes);
 await fastify.register(adminRoutes);
 await fastify.register(tryoutRoutes);
+await fastify.register(rewardRoutes, { prefix: '/api/rewards' });
+await fastify.register(questRoutes, { prefix: '/api/quests' });
+await fastify.register(shopRoutes);
 // await fastify.register(questionRoutes, { prefix: '/api/questions' });
 // await fastify.register(analyticsRoutes, { prefix: '/api/analytics' });
 
@@ -176,9 +185,17 @@ const start = async () => {
       fastify.log.warn('Database connection failed, but starting server anyway');
     }
     
-    await fastify.listen({ port, host });
+    // Make socket service available globally
+    fastify.decorate('socketService', socketService);
+    
+    const server = await fastify.listen({ port, host });
+    
+    // Initialize Socket.IO service
+    socketService.initialize(fastify.server);
+    
     fastify.log.info(`🚀 Server running at http://${host}:${port}`);
     fastify.log.info(`📚 API Documentation available at http://${host}:${port}/docs`);
+    fastify.log.info(`🔌 Socket.IO server initialized`);
   } catch (err) {
     fastify.log.error(err);
     process.exit(1);

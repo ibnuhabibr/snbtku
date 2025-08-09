@@ -6,6 +6,7 @@ export * from './tryout-sessions';
 export * from './user-answers';
 export * from './question-stats';
 export * from './user-progress';
+export * from './quest-progress';
 
 // Re-export commonly used types for convenience
 export type {
@@ -72,3 +73,11 @@ export type {
   SubjectAbility,
   SubjectAbilities,
 } from './user-progress';
+
+export type {
+  QuestProgress,
+  NewQuestProgress,
+  UpdateQuestProgress,
+  QuestReward,
+  NewQuestReward,
+} from './quest-progress';

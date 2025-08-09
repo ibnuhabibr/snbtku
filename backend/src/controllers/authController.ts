@@ -1,8 +1,8 @@
 import { FastifyRequest, FastifyReply } from 'fastify';
 import bcrypt from 'bcrypt';
 import jwt from 'jsonwebtoken';
-import { db } from '../db/index.js';
-import { users } from '../db/schema/users.js';
+import { db } from '../db/index';
+import { users } from '../db/schema/users';
 import { eq } from 'drizzle-orm';
 
 interface RegisterBody {
@@ -44,7 +44,10 @@ export class AuthController {
 
       // Check if email already exists
       const existingUser = await db
-        .select()
+        .select({
+          id: users.id,
+          email: users.email
+        })
         .from(users)
         .where(eq(users.email, email))
         .limit(1);
@@ -73,15 +76,42 @@ export class AuthController {
           full_name: users.full_name,
           role: users.role,
           is_active: users.is_active,
-          created_at: users.created_at
+          created_at: users.created_at,
+          level: users.level,
+          xp: users.xp,
+          coins: users.coins,
+          daily_streak: users.daily_streak
         });
 
+      // Generate JWT token for the new user
+      const token = jwt.sign(
+        {
+          userId: newUser[0].id,
+          email: newUser[0].email,
+          role: newUser[0].role
+        },
+        JWT_SECRET,
+        { expiresIn: '7d' }
+      );
+      
       return reply.status(201).send({
         message: 'User registered successfully',
-        user: newUser[0]
+        token,
+        user: {
+          id: newUser[0].id,
+          email: newUser[0].email,
+          name: newUser[0].full_name,
+          role: newUser[0].role,
+          createdAt: newUser[0].created_at,
+          level: newUser[0].level,
+          xp: newUser[0].xp,
+          coins: newUser[0].coins,
+          dailyStreak: newUser[0].daily_streak
+        }
       });
     } catch (error) {
-      request.log.error(error);
+      request.log.error('Registration error:', error);
+      console.error('Registration error details:', error);
       return reply.status(500).send({
         error: 'Internal server error'
       });
@@ -101,7 +131,22 @@ export class AuthController {
 
       // Find user by email
       const user = await db
-        .select()
+        .select({
+          id: users.id,
+          email: users.email,
+          password_hash: users.password_hash,
+          full_name: users.full_name,
+          role: users.role,
+          is_active: users.is_active,
+          created_at: users.created_at,
+          last_login_at: users.last_login_at,
+          level: users.level,
+          xp: users.xp,
+          coins: users.coins,
+          daily_streak: users.daily_streak,
+          last_check_in: users.last_check_in,
+          achievements: users.achievements
+        })
         .from(users)
         .where(eq(users.email, email))
         .limit(1);
@@ -159,7 +204,14 @@ export class AuthController {
           name: foundUser.full_name,
           role: foundUser.role,
           createdAt: foundUser.created_at,
-          lastLoginAt: new Date()
+          lastLoginAt: new Date(),
+          // Gamification fields
+          level: foundUser.level || 1,
+          xp: foundUser.xp || 0,
+          coins: foundUser.coins || 0,
+          dailyStreak: foundUser.daily_streak || 0,
+          lastCheckIn: foundUser.last_check_in,
+          achievements: foundUser.achievements || []
         }
       });
     } catch (error) {
@@ -188,7 +240,14 @@ export class AuthController {
           name: users.full_name,
           role: users.role,
           createdAt: users.created_at,
-          lastLoginAt: users.last_login_at
+          lastLoginAt: users.last_login_at,
+          // Gamification fields
+          level: users.level,
+          xp: users.xp,
+          coins: users.coins,
+          dailyStreak: users.daily_streak,
+          lastCheckIn: users.last_check_in,
+          achievements: users.achievements
         })
         .from(users)
         .where(eq(users.id, userId))

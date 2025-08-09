@@ -1,5 +1,5 @@
 import { FastifyRequest, FastifyReply } from 'fastify';
-import { authMiddleware } from './authMiddleware.js';
+import { authMiddleware } from './authMiddleware';
 
 // Admin middleware that requires authentication and admin role
 export async function adminMiddleware(request: FastifyRequest, reply: FastifyReply) {

@@ -1,6 +1,6 @@
 import { FastifyInstance } from 'fastify';
-import { AuthController } from '../controllers/authController.js';
-import { authMiddleware } from '../middleware/authMiddleware.js';
+import { AuthController } from '../controllers/authController';
+import { authMiddleware } from '../middleware/authMiddleware';
 
 export async function authRoutes(fastify: FastifyInstance) {
   // Register endpoint

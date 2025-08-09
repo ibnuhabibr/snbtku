@@ -1,0 +1,1 @@
+ALTER TABLE "users" ADD COLUMN "purchased_items" jsonb DEFAULT '[]'::jsonb;

@@ -1,5 +1,5 @@
-import { db } from './index.js';
-import { questions, tryoutPackages } from './schema/index.js';
+import { db } from './index';
+import { questions, tryoutPackages } from './schema/index';
 import { config } from 'dotenv';
 
 // Load environment variables

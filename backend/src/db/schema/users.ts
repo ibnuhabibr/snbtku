@@ -52,6 +52,16 @@ export const users = pgTable('users', {
   show_real_name: boolean('show_real_name').default(true),
   show_school: boolean('show_school').default(true),
   
+  // Gamification
+  level: integer('level').default(1),
+  xp: integer('xp').default(0),
+  coins: integer('coins').default(0),
+  daily_streak: integer('daily_streak').default(0),
+  last_check_in: timestamp('last_check_in'),
+  total_study_time: integer('total_study_time').default(0), // in minutes
+  achievements: jsonb('achievements').default([]),
+  purchased_items: jsonb('purchased_items').default([]),
+  
   // Timestamps
   created_at: timestamp('created_at').defaultNow(),
   updated_at: timestamp('updated_at').defaultNow(),
