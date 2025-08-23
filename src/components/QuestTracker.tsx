@@ -14,7 +14,9 @@ import {
   Zap,
   BookOpen,
   Users,
-  Flame
+  Flame,
+  TrendingUp,
+  Crown
 } from 'lucide-react';
 import { motion } from 'framer-motion';
 
@@ -53,10 +55,10 @@ const QuestTracker: React.FC<QuestTrackerProps> = ({
       title: 'Latihan Harian',
       description: 'Selesaikan 20 soal hari ini',
       type: 'daily',
-      progress: 15,
+      progress: 20,
       maxProgress: 20,
       reward: { xp: 100, coins: 50 },
-      completed: false,
+      completed: true,
       timeLeft: '8j 30m',
       icon: BookOpen,
       difficulty: 'easy'
@@ -66,10 +68,10 @@ const QuestTracker: React.FC<QuestTrackerProps> = ({
       title: 'Streak Master',
       description: 'Pertahankan streak belajar 7 hari',
       type: 'weekly',
-      progress: 5,
+      progress: 7,
       maxProgress: 7,
       reward: { xp: 500, coins: 200, items: ['Badge Streak Master'] },
-      completed: false,
+      completed: true,
       timeLeft: '2h 15m',
       icon: Flame,
       difficulty: 'medium'
@@ -111,10 +113,151 @@ const QuestTracker: React.FC<QuestTrackerProps> = ({
       timeLeft: '12h 20m',
       icon: Zap,
       difficulty: 'hard'
+    },
+    {
+      id: '6',
+      title: 'Perfect Score',
+      description: 'Dapatkan nilai 100 di try out',
+      type: 'special',
+      progress: 0,
+      maxProgress: 1,
+      reward: { xp: 1500, coins: 750, items: ['Badge Perfect', 'Avatar Gold'] },
+      completed: false,
+      timeLeft: '6d 12h',
+      icon: Star,
+      difficulty: 'hard'
+    },
+    {
+      id: '7',
+      title: 'Early Bird',
+      description: 'Login sebelum jam 7 pagi selama 5 hari',
+      type: 'weekly',
+      progress: 2,
+      maxProgress: 5,
+      reward: { xp: 400, coins: 200, items: ['Badge Early Bird'] },
+      completed: false,
+      timeLeft: '3d 8h',
+      icon: Clock,
+      difficulty: 'medium'
+    },
+    {
+      id: '8',
+      title: 'Knowledge Seeker',
+      description: 'Baca 10 materi pembelajaran',
+      type: 'daily',
+      progress: 3,
+      maxProgress: 10,
+      reward: { xp: 150, coins: 75 },
+      completed: false,
+      timeLeft: '18h 45m',
+      icon: BookOpen,
+      difficulty: 'easy'
+    },
+    {
+      id: '9',
+      title: 'Consistency King',
+      description: 'Login selama 30 hari berturut-turut',
+      type: 'special',
+      progress: 15,
+      maxProgress: 30,
+      reward: { xp: 2000, coins: 1000, items: ['Crown Avatar', 'Badge Legendary'] },
+      completed: false,
+      timeLeft: '15d',
+      icon: Crown,
+      difficulty: 'hard'
+    },
+    {
+      id: '10',
+      title: 'Quiz Master',
+      description: 'Jawab 100 soal dengan benar',
+      type: 'weekly',
+      progress: 45,
+      maxProgress: 100,
+      reward: { xp: 600, coins: 300, items: ['Badge Quiz Master'] },
+      completed: false,
+      timeLeft: '5d 2h',
+      icon: Target,
+      difficulty: 'medium'
+    },
+    {
+      id: '11',
+      title: 'Friend Collector',
+      description: 'Tambahkan 5 teman baru',
+      type: 'weekly',
+      progress: 1,
+      maxProgress: 5,
+      reward: { xp: 250, coins: 125 },
+      completed: false,
+      timeLeft: '6d 14h',
+      icon: Users,
+      difficulty: 'easy'
+    },
+    {
+      id: '12',
+      title: 'Night Owl',
+      description: 'Belajar setelah jam 10 malam selama 3 hari',
+      type: 'weekly',
+      progress: 0,
+      maxProgress: 3,
+      reward: { xp: 300, coins: 150, items: ['Badge Night Owl'] },
+      completed: false,
+      timeLeft: '4d 6h',
+      icon: Clock,
+      difficulty: 'medium'
+    },
+    {
+      id: '13',
+      title: 'Improvement Tracker',
+      description: 'Tingkatkan skor try out sebesar 50 poin',
+      type: 'special',
+      progress: 25,
+      maxProgress: 50,
+      reward: { xp: 800, coins: 400, items: ['Badge Improver'] },
+      completed: false,
+      timeLeft: '10d',
+      icon: TrendingUp,
+      difficulty: 'medium'
+    },
+    {
+      id: '14',
+      title: 'Marathon Runner',
+      description: 'Belajar selama 3 jam tanpa henti',
+      type: 'daily',
+      progress: 1,
+      maxProgress: 3,
+      reward: { xp: 300, coins: 150, items: ['Badge Marathon'] },
+      completed: false,
+      timeLeft: '20h 30m',
+      icon: Zap,
+      difficulty: 'hard'
+    },
+    {
+      id: '15',
+      title: 'Subject Master',
+      description: 'Selesaikan semua materi dalam 1 mata pelajaran',
+      type: 'special',
+      progress: 8,
+      maxProgress: 12,
+      reward: { xp: 1200, coins: 600, items: ['Badge Subject Master', 'Avatar Scholar'] },
+      completed: false,
+      timeLeft: '7d',
+      icon: BookOpen,
+      difficulty: 'hard'
     }
   ];
 
-  const activeQuests = quests.slice(0, maxQuests);
+  // Sort quests: completed quests first, then by progress percentage
+  const sortedQuests = [...quests].sort((a, b) => {
+    if (a.completed && !b.completed) return -1;
+    if (!a.completed && b.completed) return 1;
+    if (a.completed && b.completed) return 0;
+    
+    const aProgress = (a.progress / a.maxProgress) * 100;
+    const bProgress = (b.progress / b.maxProgress) * 100;
+    return bProgress - aProgress;
+  });
+
+  const activeQuests = sortedQuests.slice(0, maxQuests);
 
   const getTypeColor = (type: string) => {
     switch (type) {
@@ -134,9 +277,37 @@ const QuestTracker: React.FC<QuestTrackerProps> = ({
     }
   };
 
-  const handleClaimReward = (questId: string) => {
-    console.log(`Claiming reward for quest ${questId}`);
-    // Implement reward claiming logic
+  const handleClaimReward = async (questId: string) => {
+    try {
+      const response = await fetch(`/api/quests/${questId}/claim`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${localStorage.getItem('token')}`,
+        },
+      });
+
+      if (response.ok) {
+        const data = await response.json();
+        
+        // Show success notification
+        console.log('Reward claimed successfully:', data);
+        
+        // You can add toast notification here if available
+        // toast({
+        //   title: "Reward Claimed!",
+        //   description: `${data.message} (+${data.reward.coins} coins, +${data.reward.xp} XP)`,
+        // });
+        
+        // Refresh quests or update local state
+        window.location.reload(); // Simple refresh for now
+      } else {
+        const error = await response.json();
+        console.error('Failed to claim reward:', error.error);
+      }
+    } catch (error) {
+      console.error('Error claiming reward:', error);
+    }
   };
 
   return (

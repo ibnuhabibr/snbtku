@@ -11,26 +11,49 @@ import {
   TrendingUp,
   Plus,
   Edit,
-  Trash2,
+
   Eye,
-  BarChart3,
-  Settings,
-  Shield
+
+
+  Shield,
+
 } from "lucide-react";
+import { useAdmin } from '../../hooks/useAdmin';
+import { adminService } from '../../services/adminService';
 import { Link } from "react-router-dom";
 import AdminNavigation from "@/components/AdminNavigation";
 
 const AdminDashboard = () => {
+  const { isAdmin } = useAdmin();
   const [stats, setStats] = useState({
-    totalUsers: 1247,
-    totalMaterials: 245,
-    totalQuestions: 3892,
-    totalTryouts: 28,
-    activeUsers: 892,
-    newUsersToday: 23
+    totalUsers: 0,
+    activeUsers: 0,
+    adminUsers: 0
   });
+  const [loading, setLoading] = useState(true);
 
-  const [recentActivities, setRecentActivities] = useState([
+  useEffect(() => {
+    const fetchStats = async () => {
+      try {
+        const data = await adminService.getStats();
+        setStats(data);
+      } catch (error) {
+        console.error('Failed to fetch admin stats:', error);
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    if (isAdmin) {
+      fetchStats();
+    }
+  }, [isAdmin]);
+
+  if (!isAdmin) {
+    return null;
+  }
+
+  const [recentActivities] = useState([
     {
       id: 1,
       type: "user_registration",
@@ -61,7 +84,7 @@ const AdminDashboard = () => {
     }
   ]);
 
-  const [contentOverview, setContentOverview] = useState({
+  const [contentOverview] = useState({
     materials: {
       total: 245,
       published: 230,
@@ -100,7 +123,7 @@ const AdminDashboard = () => {
       {/* Header */}
       <AdminNavigation />
 
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 pt-24 md:pt-20">
         {/* Header Section */}
         <div className="mb-8">
           <h1 className="text-3xl font-bold mb-2">Admin Dashboard 🎛️</h1>
@@ -108,50 +131,42 @@ const AdminDashboard = () => {
         </div>
 
         {/* Stats Overview */}
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-6 gap-4 mb-8">
-          <Card>
-            <CardContent className="p-4 text-center">
-              <Users className="h-6 w-6 mx-auto mb-2 text-blue-500" />
-              <div className="text-2xl font-bold">{stats.totalUsers.toLocaleString()}</div>
-              <div className="text-sm text-muted-foreground">Total Users</div>
-              <div className="text-xs text-green-600 mt-1">+{stats.newUsersToday} hari ini</div>
-            </CardContent>
-          </Card>
-          <Card>
-            <CardContent className="p-4 text-center">
-              <BookOpen className="h-6 w-6 mx-auto mb-2 text-green-500" />
-              <div className="text-2xl font-bold">{stats.totalMaterials}</div>
-              <div className="text-sm text-muted-foreground">Materi</div>
-            </CardContent>
-          </Card>
-          <Card>
-            <CardContent className="p-4 text-center">
-              <FileText className="h-6 w-6 mx-auto mb-2 text-purple-500" />
-              <div className="text-2xl font-bold">{stats.totalQuestions.toLocaleString()}</div>
-              <div className="text-sm text-muted-foreground">Soal</div>
-            </CardContent>
-          </Card>
-          <Card>
-            <CardContent className="p-4 text-center">
-              <Target className="h-6 w-6 mx-auto mb-2 text-red-500" />
-              <div className="text-2xl font-bold">{stats.totalTryouts}</div>
-              <div className="text-sm text-muted-foreground">Try Out</div>
-            </CardContent>
-          </Card>
-          <Card>
-            <CardContent className="p-4 text-center">
-              <TrendingUp className="h-6 w-6 mx-auto mb-2 text-orange-500" />
-              <div className="text-2xl font-bold">{stats.activeUsers}</div>
-              <div className="text-sm text-muted-foreground">Active Users</div>
-            </CardContent>
-          </Card>
-          <Card>
-            <CardContent className="p-4 text-center">
-              <BarChart3 className="h-6 w-6 mx-auto mb-2 text-indigo-500" />
-              <div className="text-2xl font-bold">94%</div>
-              <div className="text-sm text-muted-foreground">Uptime</div>
-            </CardContent>
-          </Card>
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 mb-8">
+          <div className="bg-white rounded-lg shadow-md p-6">
+            <div className="flex items-center justify-between">
+              <div>
+                <p className="text-sm font-medium text-gray-600">Total Users</p>
+                <p className="text-2xl font-bold text-gray-900">
+                  {loading ? '...' : stats.totalUsers.toLocaleString()}
+                </p>
+              </div>
+              <Users className="h-8 w-8 text-blue-600" />
+            </div>
+          </div>
+
+          <div className="bg-white rounded-lg shadow-md p-6">
+            <div className="flex items-center justify-between">
+              <div>
+                <p className="text-sm font-medium text-gray-600">Active Users</p>
+                <p className="text-2xl font-bold text-gray-900">
+                  {loading ? '...' : stats.activeUsers.toLocaleString()}
+                </p>
+              </div>
+              <TrendingUp className="h-8 w-8 text-green-600" />
+            </div>
+          </div>
+
+          <div className="bg-white rounded-lg shadow-md p-6">
+            <div className="flex items-center justify-between">
+              <div>
+                <p className="text-sm font-medium text-gray-600">Admin Users</p>
+                <p className="text-2xl font-bold text-gray-900">
+                  {loading ? '...' : stats.adminUsers}
+                </p>
+              </div>
+              <Shield className="h-8 w-8 text-purple-600" />
+            </div>
+          </div>
         </div>
 
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">

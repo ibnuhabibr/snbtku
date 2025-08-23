@@ -2,7 +2,7 @@ import { Link, useNavigate } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
-import { useAuth } from "@/contexts/AuthContext";
+import { useAuthStore } from "@/stores/authStore";
 import { 
   Rocket, 
   Users, 
@@ -13,11 +13,11 @@ import {
 } from "lucide-react";
 
 const CTASection = () => {
-  const { currentUser } = useAuth();
+  const { isAuthenticated } = useAuthStore();
   const navigate = useNavigate();
 
   const handleRegisterClick = () => {
-    if (currentUser) {
+    if (isAuthenticated) {
       navigate('/dashboard');
     } else {
       navigate('/register');
@@ -96,7 +96,7 @@ const CTASection = () => {
                   onClick={handleRegisterClick}
                 >
                   <Rocket className="h-4 w-4 md:h-5 md:w-5 mr-2" />
-                  {currentUser ? 'Masuk ke Dashboard' : 'Daftar Gratis Sekarang'}
+                  {isAuthenticated ? 'Masuk ke Dashboard' : 'Daftar Gratis Sekarang'}
                 </Button>
                 <Button 
                   variant="outline" 

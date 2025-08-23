@@ -5,30 +5,91 @@ import rateLimit from '@fastify/rate-limit';
 import jwt from '@fastify/jwt';
 import swagger from '@fastify/swagger';
 import swaggerUi from '@fastify/swagger-ui';
-import { config } from 'dotenv';
 import { checkDatabaseConnection } from './db/index';
-import { authRoutes, userRoutes } from './routes/authRoutes';
+import { authRoutes } from './routes/authRoutes';
+import { userRoutes } from './routes/userRoutes';
 import { tryoutRoutes } from './routes/tryoutRoutes';
 import { adminRoutes } from './routes/adminRoutes';
 import { rewardRoutes } from './routes/rewardRoutes';
 import { questRoutes } from './routes/questRoutes';
 import { shopRoutes } from './routes/shopRoutes';
 import { socketService } from './services/socketService';
+import { config } from './config';
+import { logger } from './utils/logger';
+import { initRedisClient } from './utils/cache';
+import * as os from 'os';
 
-// Load environment variables
-config();
-
+// Start HTTP server
 const fastify = Fastify({
-  logger: {
-    level: process.env.LOG_LEVEL || 'info',
-    transport: process.env.NODE_ENV === 'development' ? {
-      target: 'pino-pretty',
-      options: {
-        translateTime: 'HH:MM:ss Z',
-        ignore: 'pid,hostname',
-      },
-    } : undefined,
-  },
+  // Enable trust proxy for proper IP detection behind load balancers
+  trustProxy: config.server.trustProxy,
+  
+  // Configure logging
+  logger: false, // Disable built-in logger, we'll use our custom logger
+  
+  // Performance optimizations
+  maxParamLength: 100,
+  bodyLimit: 1048576, // 1MB
+  
+  // Connection timeouts
+  connectionTimeout: 30000, // 30 seconds
+  
+  // Disable unused features
+  disableRequestLogging: true,
+  
+  // Add request ID for tracking
+  genReqId: () => {
+    return `req-${Date.now()}-${Math.random().toString(36).substr(2, 9)}`;
+  }
+});
+
+// Custom request logging middleware
+fastify.addHook('onRequest', (request, reply, done) => {
+  request.raw.startTime = Date.now();
+  done();
+});
+
+fastify.addHook('onResponse', (request, reply, done) => {
+  const duration = Date.now() - (request.raw.startTime || Date.now());
+  logger.request(
+    request.method,
+    request.url,
+    reply.statusCode,
+    duration
+  );
+  done();
+});
+
+// Error handling hook
+fastify.setErrorHandler((error, request, reply) => {
+  const statusCode = error.statusCode || 500;
+  
+  // Log error with appropriate level
+  if (statusCode >= 500) {
+    logger.error(`Server error: ${error.message}`, {
+      path: request.url,
+      method: request.method,
+      error: {
+        name: error.name,
+        message: error.message,
+        stack: config.env === 'development' ? error.stack : undefined
+      }
+    });
+  } else if (statusCode >= 400) {
+    logger.warn(`Client error: ${error.message}`, {
+      path: request.url,
+      method: request.method
+    });
+  }
+  
+  // Send error response
+  reply.status(statusCode).send({
+    error: true,
+    message: statusCode >= 500 && config.env === 'production' 
+      ? 'Internal Server Error' 
+      : error.message,
+    statusCode
+  });
 });
 
 // Register plugins
@@ -37,8 +98,14 @@ await fastify.register(helmet, {
 });
 
 await fastify.register(cors, {
-  origin: process.env.CORS_ORIGIN?.split(',') || ['http://localhost:8080'],
+  origin: Array.isArray(config.server.corsOrigin) 
+    ? config.server.corsOrigin 
+    : [config.server.corsOrigin],
   credentials: true,
+  methods: ['GET', 'POST', 'PUT', 'DELETE', 'PATCH', 'OPTIONS'],
+  allowedHeaders: ['Content-Type', 'Authorization', 'Accept'],
+  exposedHeaders: ['Content-Disposition'],
+  maxAge: 86400, // 24 hours - increase browser caching of CORS preflight requests
 });
 
 await fastify.register(rateLimit, {

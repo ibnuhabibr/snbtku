@@ -1,0 +1,194 @@
+version: '3.8'
+
+services:
+  # Frontend service
+  frontend:
+    image: snbtku-frontend:latest
+    build:
+      context: .
+      dockerfile: Dockerfile.frontend
+    container_name: snbtku-frontend
+    restart: unless-stopped
+    ports:
+      - "8080:80"
+    environment:
+      - NODE_ENV=production
+      - VITE_API_URL=https://api.snbtku.com
+    networks:
+      - snbtku-network
+    depends_on:
+      - backend
+    deploy:
+      resources:
+        limits:
+          cpus: '0.5'
+          memory: 512M
+    healthcheck:
+      test: ["CMD", "wget", "-q", "--spider", "http://localhost:80"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 20s
+
+  # Backend API service
+  backend:
+    image: snbtku-backend:latest
+    build:
+      context: ./backend
+      dockerfile: Dockerfile
+    container_name: snbtku-backend
+    restart: unless-stopped
+    ports:
+      - "3001:3001"
+    environment:
+      - NODE_ENV=production
+      - PORT=3001
+      - DB_HOST=postgres
+      - DB_PORT=5432
+      - DB_USER=snbtku_user
+      - DB_PASSWORD=snbtku_password
+      - DB_NAME=snbtku_prod
+      - DB_SSL=false
+      - REDIS_URL=redis://redis:6379
+      - CORS_ORIGIN=https://snbtku.com
+      - JWT_SECRET=${JWT_SECRET}
+      - JWT_EXPIRES_IN=7d
+      - SESSION_SECRET=${SESSION_SECRET}
+      - LOG_LEVEL=info
+    volumes:
+      - backend_uploads:/app/uploads
+      - backend_logs:/app/logs
+    networks:
+      - snbtku-network
+    depends_on:
+      postgres:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+    deploy:
+      resources:
+        limits:
+          cpus: '1'
+          memory: 1024M
+    healthcheck:
+      test: ["CMD", "wget", "-q", "--spider", "http://localhost:3001/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 30s
+
+  # PostgreSQL database
+  postgres:
+    image: postgres:16-alpine
+    container_name: snbtku-postgres
+    restart: unless-stopped
+    environment:
+      POSTGRES_DB: snbtku_prod
+      POSTGRES_USER: snbtku_user
+      POSTGRES_PASSWORD: snbtku_password
+      PGDATA: /var/lib/postgresql/data/pgdata
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+      - ./backend/db/init:/docker-entrypoint-initdb.d
+    networks:
+      - snbtku-network
+    ports:
+      - "5432:5432"
+    deploy:
+      resources:
+        limits:
+          cpus: '1'
+          memory: 1024M
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U snbtku_user -d snbtku_prod"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+      start_period: 10s
+    # PostgreSQL performance tuning
+    command: >
+      postgres 
+      -c shared_buffers=256MB
+      -c effective_cache_size=768MB
+      -c work_mem=8MB
+      -c maintenance_work_mem=64MB
+      -c max_connections=100
+      -c max_worker_processes=4
+      -c max_parallel_workers_per_gather=2
+      -c max_parallel_workers=4
+
+  # Redis for caching and session storage
+  redis:
+    image: redis:7-alpine
+    container_name: snbtku-redis
+    restart: unless-stopped
+    command: >
+      redis-server 
+      --appendonly yes
+      --maxmemory 256mb
+      --maxmemory-policy allkeys-lru
+      --save 900 1
+      --save 300 10
+      --save 60 10000
+    volumes:
+      - redis_data:/data
+    networks:
+      - snbtku-network
+    ports:
+      - "6379:6379"
+    deploy:
+      resources:
+        limits:
+          cpus: '0.5'
+          memory: 256M
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  # Nginx as reverse proxy and for serving static assets with optimizations
+  nginx:
+    image: nginx:alpine
+    container_name: snbtku-nginx
+    restart: unless-stopped
+    ports:
+      - "80:80"
+      - "443:443"
+    volumes:
+      - ./nginx/conf.d:/etc/nginx/conf.d
+      - ./nginx/nginx.conf:/etc/nginx/nginx.conf
+      - ./nginx/ssl:/etc/nginx/ssl
+      - ./nginx/logs:/var/log/nginx
+      - frontend_static:/var/www/html
+    networks:
+      - snbtku-network
+    depends_on:
+      - frontend
+      - backend
+    deploy:
+      resources:
+        limits:
+          cpus: '0.5'
+          memory: 256M
+    healthcheck:
+      test: ["CMD", "wget", "-q", "--spider", "http://localhost:80/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+
+volumes:
+  postgres_data:
+    driver: local
+  redis_data:
+    driver: local
+  backend_uploads:
+    driver: local
+  backend_logs:
+    driver: local
+  frontend_static:
+    driver: local
+
+networks:
+  snbtku-network:
+    driver: bridge

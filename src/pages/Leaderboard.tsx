@@ -1,6 +1,6 @@
 import { useState } from "react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { Button } from "@/components/ui/button";
+// import { Button } from "@/components/ui/button"; // Removed unused import
 import { Badge } from "@/components/ui/badge";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
@@ -14,11 +14,11 @@ import {
   Users,
   Target,
   Flame,
-  Award,
-  Calendar,
+  // Award, // Removed unused import
+  // Calendar, // Removed unused import
   BarChart3
 } from "lucide-react";
-import { Link } from "react-router-dom";
+// import { Link } from "react-router-dom"; // Removed unused import
 import Navigation from "@/components/Navigation";
 
 const Leaderboard = () => {
@@ -249,7 +249,7 @@ const Leaderboard = () => {
     <div className="min-h-screen bg-gradient-to-br from-background via-primary/5 to-accent/5">
       <Navigation />
 
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 pt-20 md:pt-24">
         {/* Header Section */}
         <div className="mb-8">
           <h1 className="text-3xl font-bold mb-2">Leaderboard 🏆</h1>
@@ -348,16 +348,16 @@ const Leaderboard = () => {
                   <div className="text-center">
                     <div className="relative mb-4">
                       <Avatar className="h-20 w-20 mx-auto border-4 border-gray-300">
-                        <AvatarImage src={topUsers[1].avatar} />
-                        <AvatarFallback>{topUsers[1].name[0]}</AvatarFallback>
+                        <AvatarImage src={topUsers[1]?.avatar} />
+                        <AvatarFallback>{topUsers[1]?.name[0]}</AvatarFallback>
                       </Avatar>
                       <div className="absolute -top-2 -right-2">
                         <Medal className="h-8 w-8 text-gray-400" />
                       </div>
                     </div>
-                    <h3 className="font-bold">{topUsers[1].name}</h3>
-                    <p className="text-sm text-muted-foreground">{topUsers[1].location}</p>
-                    <p className="text-lg font-bold text-primary">{topUsers[1].xp.toLocaleString()} XP</p>
+                    <h3 className="font-bold">{topUsers[1]?.name}</h3>
+                    <p className="text-sm text-muted-foreground">{topUsers[1]?.location}</p>
+                    <p className="text-lg font-bold text-primary">{topUsers[1]?.xp.toLocaleString()} XP</p>
                     <div className="bg-gray-100 h-24 w-24 mx-auto mt-4 rounded-t-lg flex items-end justify-center pb-2">
                       <span className="text-2xl font-bold text-gray-600">2</span>
                     </div>
@@ -367,16 +367,16 @@ const Leaderboard = () => {
                   <div className="text-center">
                     <div className="relative mb-4">
                       <Avatar className="h-24 w-24 mx-auto border-4 border-yellow-400">
-                        <AvatarImage src={topUsers[0].avatar} />
-                        <AvatarFallback>{topUsers[0].name[0]}</AvatarFallback>
+                        <AvatarImage src={topUsers[0]?.avatar} />
+                        <AvatarFallback>{topUsers[0]?.name[0]}</AvatarFallback>
                       </Avatar>
                       <div className="absolute -top-2 -right-2">
                         <Crown className="h-10 w-10 text-yellow-500" />
                       </div>
                     </div>
-                    <h3 className="font-bold text-lg">{topUsers[0].name}</h3>
-                    <p className="text-sm text-muted-foreground">{topUsers[0].location}</p>
-                    <p className="text-xl font-bold text-yellow-600">{topUsers[0].xp.toLocaleString()} XP</p>
+                    <h3 className="font-bold text-lg">{topUsers[0]?.name}</h3>
+                    <p className="text-sm text-muted-foreground">{topUsers[0]?.location}</p>
+                    <p className="text-xl font-bold text-yellow-600">{topUsers[0]?.xp.toLocaleString()} XP</p>
                     <div className="bg-yellow-100 h-32 w-24 mx-auto mt-4 rounded-t-lg flex items-end justify-center pb-2">
                       <span className="text-3xl font-bold text-yellow-600">1</span>
                     </div>
@@ -386,16 +386,16 @@ const Leaderboard = () => {
                   <div className="text-center">
                     <div className="relative mb-4">
                       <Avatar className="h-20 w-20 mx-auto border-4 border-amber-600">
-                        <AvatarImage src={topUsers[2].avatar} />
-                        <AvatarFallback>{topUsers[2].name[0]}</AvatarFallback>
+                        <AvatarImage src={topUsers[2]?.avatar} />
+                        <AvatarFallback>{topUsers[2]?.name[0]}</AvatarFallback>
                       </Avatar>
                       <div className="absolute -top-2 -right-2">
                         <Medal className="h-8 w-8 text-amber-600" />
                       </div>
                     </div>
-                    <h3 className="font-bold">{topUsers[2].name}</h3>
-                    <p className="text-sm text-muted-foreground">{topUsers[2].location}</p>
-                    <p className="text-lg font-bold text-primary">{topUsers[2].xp.toLocaleString()} XP</p>
+                    <h3 className="font-bold">{topUsers[2]?.name}</h3>
+                    <p className="text-sm text-muted-foreground">{topUsers[2]?.location}</p>
+                    <p className="text-lg font-bold text-primary">{topUsers[2]?.xp.toLocaleString()} XP</p>
                     <div className="bg-amber-100 h-20 w-24 mx-auto mt-4 rounded-t-lg flex items-end justify-center pb-2">
                       <span className="text-2xl font-bold text-amber-600">3</span>
                     </div>

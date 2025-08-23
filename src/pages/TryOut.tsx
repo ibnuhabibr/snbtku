@@ -13,12 +13,10 @@ import {
   BarChart3,
   Calendar,
   Star,
-  TrendingUp,
   CheckCircle,
-  AlertCircle,
   Timer
 } from "lucide-react";
-import { Link } from "react-router-dom";
+
 import Navigation from '@/components/Navigation';
 
 const TryOut = () => {
@@ -167,26 +165,7 @@ const TryOut = () => {
     }
   ];
 
-  const upcomingScheduled = [
-    {
-      id: 1,
-      title: "SNBT National Championship",
-      date: "Minggu, 15 Des 2024",
-      time: "09:00 WIB",
-      participants: 12547,
-      prize: "Sertifikat + Merchandise",
-      status: "registered"
-    },
-    {
-      id: 2,
-      title: "SNBT Weekly Challenge #52",
-      date: "Sabtu, 21 Des 2024",
-      time: "14:00 WIB",
-      participants: 3421,
-      prize: "Badge Eksklusif",
-      status: "open"
-    }
-  ];
+
 
   const getDifficultyColor = (difficulty: string) => {
     switch (difficulty.toLowerCase()) {
@@ -213,57 +192,56 @@ const TryOut = () => {
     <div className="min-h-screen bg-gradient-to-br from-background via-primary/5 to-accent/5">
       <Navigation />
 
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 pt-20 md:pt-24">
         {/* Header Section */}
         <div className="mb-8">
           <h1 className="text-3xl font-bold mb-2">Try Out SNBT 🎯</h1>
           <p className="text-muted-foreground">Simulasi ujian SNBT yang realistis dengan sistem penilaian berbasis IRT</p>
         </div>
 
-        {/* Stats Overview */}
-        <div className="grid grid-cols-1 md:grid-cols-5 gap-4 mb-8">
+        {/* Stats Overview - Hidden on mobile, compact on tablet+ */}
+        <div className="hidden md:grid md:grid-cols-3 lg:grid-cols-5 gap-3 mb-8">
           <Card>
-            <CardContent className="p-4 text-center">
-              <Target className="h-6 w-6 mx-auto mb-2 text-blue-500" />
-              <div className="text-2xl font-bold">{tryOutStats.totalTryOuts}</div>
-              <div className="text-sm text-muted-foreground">Total Try Out</div>
+            <CardContent className="p-3 text-center">
+              <Target className="h-5 w-5 mx-auto mb-1 text-blue-500" />
+              <div className="text-lg font-bold">{tryOutStats.totalTryOuts}</div>
+              <div className="text-xs text-muted-foreground">Total Try Out</div>
             </CardContent>
           </Card>
           <Card>
-            <CardContent className="p-4 text-center">
-              <CheckCircle className="h-6 w-6 mx-auto mb-2 text-green-500" />
-              <div className="text-2xl font-bold">{tryOutStats.completed}</div>
-              <div className="text-sm text-muted-foreground">Selesai</div>
+            <CardContent className="p-3 text-center">
+              <CheckCircle className="h-5 w-5 mx-auto mb-1 text-green-500" />
+              <div className="text-lg font-bold">{tryOutStats.completed}</div>
+              <div className="text-xs text-muted-foreground">Selesai</div>
             </CardContent>
           </Card>
           <Card>
-            <CardContent className="p-4 text-center">
-              <BarChart3 className="h-6 w-6 mx-auto mb-2 text-purple-500" />
-              <div className="text-2xl font-bold">{tryOutStats.averageScore}</div>
-              <div className="text-sm text-muted-foreground">Rata-rata Skor</div>
+            <CardContent className="p-3 text-center">
+              <BarChart3 className="h-5 w-5 mx-auto mb-1 text-purple-500" />
+              <div className="text-lg font-bold">{tryOutStats.averageScore}</div>
+              <div className="text-xs text-muted-foreground">Rata-rata Skor</div>
             </CardContent>
           </Card>
           <Card>
-            <CardContent className="p-4 text-center">
-              <Star className="h-6 w-6 mx-auto mb-2 text-yellow-500" />
-              <div className="text-2xl font-bold">{tryOutStats.bestScore}</div>
-              <div className="text-sm text-muted-foreground">Skor Terbaik</div>
+            <CardContent className="p-3 text-center">
+              <Star className="h-5 w-5 mx-auto mb-1 text-yellow-500" />
+              <div className="text-lg font-bold">{tryOutStats.bestScore}</div>
+              <div className="text-xs text-muted-foreground">Skor Terbaik</div>
             </CardContent>
           </Card>
           <Card>
-            <CardContent className="p-4 text-center">
-              <Trophy className="h-6 w-6 mx-auto mb-2 text-orange-500" />
-              <div className="text-2xl font-bold">#{tryOutStats.rank}</div>
-              <div className="text-sm text-muted-foreground">Ranking</div>
+            <CardContent className="p-3 text-center">
+              <Trophy className="h-5 w-5 mx-auto mb-1 text-orange-500" />
+              <div className="text-lg font-bold">#{tryOutStats.rank}</div>
+              <div className="text-xs text-muted-foreground">Ranking</div>
             </CardContent>
           </Card>
         </div>
 
         <Tabs value={activeTab} onValueChange={setActiveTab}>
-          <TabsList className="grid w-full grid-cols-3">
+          <TabsList className="grid w-full grid-cols-2">
             <TabsTrigger value="available">Try Out Tersedia</TabsTrigger>
             <TabsTrigger value="completed">Riwayat</TabsTrigger>
-            <TabsTrigger value="scheduled">Terjadwal</TabsTrigger>
           </TabsList>
 
           <TabsContent value="available" className="mt-6">
@@ -425,63 +403,7 @@ const TryOut = () => {
             </div>
           </TabsContent>
 
-          <TabsContent value="scheduled" className="mt-6">
-            <div className="grid grid-cols-1 gap-6">
-              {upcomingScheduled.map((event) => (
-                <Card key={event.id} className="hover:shadow-lg transition-shadow duration-200">
-                  <CardContent className="p-6">
-                    <div className="flex items-start justify-between">
-                      <div className="flex-1">
-                        <div className="flex items-center gap-3 mb-4">
-                          <Calendar className="h-5 w-5 text-primary" />
-                          <div>
-                            <h3 className="font-semibold text-lg mb-1">{event.title}</h3>
-                            <p className="text-sm text-muted-foreground flex items-center gap-2">
-                              <Clock className="h-4 w-4" />
-                              {event.date} • {event.time}
-                            </p>
-                          </div>
-                        </div>
-                        
-                        <div className="grid grid-cols-2 gap-4 mb-4">
-                          <div className="text-center p-4 bg-muted/50 rounded-lg hover:bg-muted/70 transition-colors">
-                            <Users className="h-5 w-5 mx-auto mb-2 text-primary" />
-                            <p className="text-sm font-medium">{event.participants.toLocaleString()}</p>
-                            <p className="text-xs text-muted-foreground">Peserta Terdaftar</p>
-                          </div>
-                          <div className="text-center p-4 bg-muted/50 rounded-lg hover:bg-muted/70 transition-colors">
-                            <Trophy className="h-5 w-5 mx-auto mb-2 text-yellow-500" />
-                            <p className="text-sm font-medium">{event.prize}</p>
-                            <p className="text-xs text-muted-foreground">Hadiah</p>
-                          </div>
-                        </div>
-                      </div>
-                      
-                      <div className="flex flex-col items-end gap-3">
-                        <Badge 
-                          variant={event.status === 'registered' ? 'default' : 'secondary'}
-                          className="px-3 py-1"
-                        >
-                          {event.status === 'registered' ? 'Terdaftar' : 'Buka'}
-                        </Badge>
-                        {event.status === 'registered' ? (
-                          <Button variant="outline" className="min-w-[120px]">
-                            <CheckCircle className="h-4 w-4 mr-2" />
-                            Terdaftar
-                          </Button>
-                        ) : (
-                          <Button className="min-w-[120px]">
-                            <Calendar className="h-4 w-4 mr-2" />
-                            Daftar Sekarang
-                          </Button>
-                        )}
-                      </div>
-                    </div>
-                  </CardContent>
-                </Card>
-              ))}
-            </div>
-          </TabsContent>
+
         </Tabs>
       </div>
     </div>

@@ -1,17 +1,17 @@
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
-import { Badge } from "@/components/ui/badge";
+
 import { Star, Users, BookOpen, Target, Award, Heart } from "lucide-react";
 import { Link, useNavigate } from "react-router-dom";
-import { useAuth } from "@/contexts/AuthContext";
+import { useAuthStore } from "@/stores/authStore";
 import heroImage from "@/assets/hero-image.jpg";
 
 const HeroSection = () => {
-  const { currentUser } = useAuth();
+  const { isAuthenticated } = useAuthStore();
   const navigate = useNavigate();
 
   const handleStartLearning = () => {
-    if (currentUser) {
+    if (isAuthenticated) {
       navigate('/dashboard');
     } else {
       navigate('/register');
@@ -33,7 +33,7 @@ const HeroSection = () => {
   ];
 
   return (
-    <section className="relative min-h-screen flex items-center bg-gradient-to-br from-background via-primary/5 to-accent/5">
+    <section className="relative min-h-screen flex items-center bg-gradient-to-br from-background via-primary/5 to-accent/5 pt-12 md:pt-16">
       {/* Background Pattern */}
       <div className="absolute inset-0 bg-[radial-gradient(circle_at_30%_20%,hsl(var(--primary)/0.1),transparent_50%),radial-gradient(circle_at_70%_80%,hsl(var(--accent)/0.1),transparent_50%)]" />
       
@@ -43,9 +43,6 @@ const HeroSection = () => {
           {/* Left Content */}
           <div className="space-y-8 animate-fade-in">
             <div className="space-y-4">
-              <Badge variant="secondary" className="px-4 py-2 text-sm font-medium">
-                🎉 Platform belajar SNBT terpopuler di Indonesia
-              </Badge>
               
               <h1 className="text-4xl sm:text-5xl lg:text-6xl font-bold leading-tight">
                 Taklukkan{" "}

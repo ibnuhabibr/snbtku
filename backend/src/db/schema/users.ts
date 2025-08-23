@@ -7,6 +7,7 @@ export const users = pgTable('users', {
   
   // Basic Information
   email: varchar('email', { length: 255 }).notNull().unique(),
+  unique_id: varchar('unique_id', { length: 20 }).notNull().unique(), // User-friendly unique ID for search
   password_hash: varchar('password_hash', { length: 255 }).notNull(),
   full_name: varchar('full_name', { length: 255 }).notNull(),
   phone_number: varchar('phone_number', { length: 20 }),
@@ -70,6 +71,7 @@ export const users = pgTable('users', {
 // Zod schemas for validation
 export const insertUserSchema = createInsertSchema(users, {
   email: z.string().email('Invalid email format'),
+  unique_id: z.string().min(4).max(20).regex(/^[a-zA-Z0-9_]+$/, 'Unique ID can only contain letters, numbers, and underscores'),
   password_hash: z.string().min(8, 'Password must be at least 8 characters'),
   full_name: z.string().min(2, 'Full name must be at least 2 characters'),
   phone_number: z.string().optional(),
@@ -91,10 +93,13 @@ export const updateUserSchema = insertUserSchema.partial().omit({
 
 export const publicUserSchema = selectUserSchema.pick({
   id: true,
+  unique_id: true,
   full_name: true,
   avatar_url: true,
   school_name: true,
   grade_level: true,
+  level: true,
+  xp: true,
   created_at: true,
 }).extend({
   // Add computed fields that might be needed for public profile

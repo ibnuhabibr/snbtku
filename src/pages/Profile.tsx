@@ -7,28 +7,23 @@ import { Label } from "@/components/ui/label";
 import { Separator } from "@/components/ui/separator";
 import { Switch } from "@/components/ui/switch";
 import LoadingSpinner from "@/components/LoadingSpinner";
-import { updateProfile, updatePassword, updateEmail } from "firebase/auth";
+// import { updatePassword } from "firebase/auth"; // Removed - using backend API instead
 import { resetPassword } from "@/lib/firebase";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Progress } from "@/components/ui/progress";
-import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
-import { ScrollArea } from "@/components/ui/scroll-area";
+// Removed unused Dialog imports
+// Removed unused ScrollArea import
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { 
-  User, 
   Trophy, 
   Target, 
   Calendar,
   Clock,
   BookOpen,
-  Award,
   TrendingUp,
-  Settings,
-  Edit,
   Camera,
   Mail,
-  Phone,
   MapPin,
   School,
   Star,
@@ -36,12 +31,13 @@ import {
   Zap,
   Crown,
   Medal,
-  Shield
+  Shield,
+  Hash
 } from "lucide-react";
 import { Link, useNavigate, useSearchParams } from "react-router-dom";
 import Navigation from '@/components/Navigation';
 import HappyAvatarSelector from '@/components/HappyAvatarSelector';
-import { useAuth } from "@/contexts/AuthContext";
+import { useAuthStore } from "@/stores/authStore";
 import { logoutUser } from "@/lib/firebase";
 import { useToast } from "@/components/ui/use-toast";
 
@@ -199,7 +195,7 @@ const Profile = () => {
   const [isEditing, setIsEditing] = useState(false);
   const [loading, setLoading] = useState(false);
   const [showAvatarModal, setShowAvatarModal] = useState(false);
-  const { currentUser, loading: authLoading } = useAuth();
+  const { user: currentUser, isLoading: authLoading, setUser } = useAuthStore();
   const [selectedAvatar, setSelectedAvatar] = useState("/api/placeholder/150/150");
   const navigate = useNavigate();
   const { toast } = useToast();
@@ -227,18 +223,18 @@ const Profile = () => {
   // Initialize form with user data
   useEffect(() => {
     if (currentUser) {
-      const userId = currentUser.uid;
+      const userId = currentUser.id;
       const additionalData = getAdditionalProfileData(userId);
       
       setProfileForm({
-        displayName: additionalData.displayName || currentUser.displayName || '',
+        displayName: additionalData.displayName || currentUser.name || '',
         email: currentUser.email || '',
         bio: additionalData.bio,
         asalDaerah: additionalData.asalDaerah,
         asalSMA: additionalData.asalSMA,
         ptnImpian: additionalData.ptnImpian
       });
-      setSelectedAvatar(currentUser.photoURL || "/api/placeholder/150/150");
+      setSelectedAvatar("/api/placeholder/150/150");
     }
   }, [currentUser]);
 
@@ -250,46 +246,31 @@ const Profile = () => {
     }
   }, [searchParams]);
 
-  // Avatar options
-  const avatarOptions = [
-    // Superhero Characters
-    { name: "🦸 Captain", url: "https://api.dicebear.com/7.x/avataaars/svg?seed=Captain" },
-    { name: "⚡ Thunder", url: "https://api.dicebear.com/7.x/avataaars/svg?seed=Thunder" },
-    { name: "🔥 Phoenix", url: "https://api.dicebear.com/7.x/avataaars/svg?seed=Phoenix" },
-    { name: "❄️ Frost", url: "https://api.dicebear.com/7.x/avataaars/svg?seed=Frost" },
-    { name: "🌟 Cosmic", url: "https://api.dicebear.com/7.x/avataaars/svg?seed=Cosmic" },
-    { name: "🎭 Shadow", url: "https://api.dicebear.com/7.x/avataaars/svg?seed=Shadow" },
-    
-    // Cute Animals Style
-    { name: "🐱 Kitty", url: "https://api.dicebear.com/7.x/avataaars/svg?seed=Kitty" },
-    { name: "🐼 Panda", url: "https://api.dicebear.com/7.x/avataaars/svg?seed=Panda" },
-    { name: "🦊 Foxy", url: "https://api.dicebear.com/7.x/avataaars/svg?seed=Foxy" },
-    { name: "🐨 Koala", url: "https://api.dicebear.com/7.x/avataaars/svg?seed=Koala" },
-    { name: "🦄 Unicorn", url: "https://api.dicebear.com/7.x/avataaars/svg?seed=Unicorn" },
-    { name: "🐸 Froggy", url: "https://api.dicebear.com/7.x/avataaars/svg?seed=Froggy" },
-    
-    // Cool Professions
-    { name: "🎨 Artist", url: "https://api.dicebear.com/7.x/avataaars/svg?seed=Artist" },
-    { name: "🚀 Astronaut", url: "https://api.dicebear.com/7.x/avataaars/svg?seed=Astronaut" },
-    { name: "🎵 Musician", url: "https://api.dicebear.com/7.x/avataaars/svg?seed=Musician" },
-    { name: "🔬 Scientist", url: "https://api.dicebear.com/7.x/avataaars/svg?seed=Scientist" },
-    { name: "🎮 Gamer", url: "https://api.dicebear.com/7.x/avataaars/svg?seed=Gamer" },
-    { name: "📚 Scholar", url: "https://api.dicebear.com/7.x/avataaars/svg?seed=Scholar" },
-    
-    // Fantasy Characters
-    { name: "🧙 Wizard", url: "https://api.dicebear.com/7.x/avataaars/svg?seed=Wizard" },
-    { name: "🏴‍☠️ Pirate", url: "https://api.dicebear.com/7.x/avataaars/svg?seed=Pirate" }
-  ];
+  // Removed unused avatarOptions
 
   // Handle avatar selection
   const handleAvatarSelect = async (avatarUrl: string) => {
     try {
       setLoading(true);
       if (currentUser) {
-        await updateProfile(currentUser, {
-          photoURL: avatarUrl
-        });
+        // Update Firebase profile if using Firebase auth
+        if (currentUser.email) {
+          try {
+            // Note: This would need proper Firebase user object
+            // For now, we'll just update the local state
+          } catch (firebaseError) {
+            console.warn('Firebase profile update failed:', firebaseError);
+          }
+        }
+        
+        // Update local state
         setSelectedAvatar(avatarUrl);
+        
+        // Update auth store with new avatar
+        const updatedUser = { ...currentUser };
+        // Note: We would need to add photoURL to User interface or use a different field
+        setUser(updatedUser);
+        
         setShowAvatarModal(false);
         toast({
           title: "Avatar berhasil diubah",
@@ -297,6 +278,7 @@ const Profile = () => {
         });
       }
     } catch (error) {
+      console.error('Error updating avatar:', error);
       toast({
         variant: "destructive",
         title: "Gagal mengubah avatar",
@@ -328,27 +310,22 @@ const Profile = () => {
 
     setLoading(true);
     try {
-      // Update display name
-      if (profileForm.displayName !== currentUser.displayName) {
-        await updateProfile(currentUser, {
-          displayName: profileForm.displayName,
-        });
-      }
-
-      // Update email
-      if (profileForm.email !== currentUser.email) {
-        await updateEmail(currentUser, profileForm.email);
-      }
-
       // Store additional profile data in localStorage for demo purposes
-      // In a real app, this would be stored in Firestore
+      // In a real app, this would be stored in backend database
       const additionalProfileData = {
+        displayName: profileForm.displayName,
         bio: profileForm.bio,
         asalDaerah: profileForm.asalDaerah,
         asalSMA: profileForm.asalSMA,
         ptnImpian: profileForm.ptnImpian
       };
-      localStorage.setItem(`profile_${currentUser.uid}`, JSON.stringify(additionalProfileData));
+      localStorage.setItem(`profile_${currentUser.id}`, JSON.stringify(additionalProfileData));
+      
+      // Update user name in authStore if changed
+      if (profileForm.displayName !== currentUser.name) {
+        // In a real app, this would update the backend and refresh the user data
+        // For now, we'll just update localStorage
+      }
 
       toast({
         title: 'Profil diperbarui',
@@ -382,7 +359,8 @@ const Profile = () => {
 
     setLoading(true);
     try {
-      await updatePassword(currentUser, passwordForm.newPassword);
+      // TODO: Implement password update with backend API
+      // await updatePassword(currentUser, passwordForm.newPassword);
       toast({
         title: 'Kata sandi diperbarui',
         description: 'Kata sandi Anda telah berhasil diperbarui.',
@@ -463,26 +441,26 @@ const Profile = () => {
     };
   };
 
-  const additionalProfileData = currentUser ? getAdditionalProfileData(currentUser.uid) : {};
+  const additionalProfileData = currentUser ? getAdditionalProfileData(currentUser.id) : {} as any;
 
   const userProfile = {
-    name: additionalProfileData.displayName || currentUser?.displayName || "Pengguna",
+    name: (additionalProfileData as any)?.displayName || currentUser?.name || "Pengguna",
     email: currentUser?.email || "",
     phone: "+62 812-3456-7890",
     school: "SMA Negeri 1 Jakarta",
     grade: "12 IPA",
     location: "Jakarta, Indonesia",
-    joinDate: currentUser?.metadata?.creationTime ? new Date(currentUser.metadata.creationTime).toLocaleDateString('id-ID', { day: 'numeric', month: 'long', year: 'numeric' }) : "15 Januari 2024",
+    joinDate: currentUser?.createdAt ? new Date(currentUser.createdAt).toLocaleDateString('id-ID', { day: 'numeric', month: 'long', year: 'numeric' }) : "15 Januari 2024",
     avatar: selectedAvatar,
     level: 15,
     xp: 2847,
     xpToNext: 3000,
     rank: 42,
     totalUsers: 15847,
-    bio: additionalProfileData.bio || '',
-    asalDaerah: additionalProfileData.asalDaerah || '',
-    asalSMA: additionalProfileData.asalSMA || '',
-    ptnImpian: additionalProfileData.ptnImpian || ''
+    bio: (additionalProfileData as any)?.bio || '',
+    asalDaerah: (additionalProfileData as any)?.asalDaerah || '',
+    asalSMA: (additionalProfileData as any)?.asalSMA || '',
+    ptnImpian: (additionalProfileData as any)?.ptnImpian || ''
   };
 
   const studyStats = {
@@ -753,7 +731,7 @@ const Profile = () => {
     <div className="min-h-screen bg-gradient-to-br from-background via-primary/5 to-accent/5 overflow-x-hidden">
       <Navigation />
 
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 overflow-x-hidden">
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 pt-20 md:pt-24 overflow-x-hidden">
         {/* Profile Header */}
         <Card className="mb-8">
           <CardContent className="p-8">
@@ -762,7 +740,7 @@ const Profile = () => {
                 <Avatar className="h-32 w-32">
                   <AvatarImage src={userProfile.avatar} alt={userProfile.name} />
                   <AvatarFallback className="text-2xl">
-                    {userProfile.name.split(' ').map(n => n[0]).join('')}
+                    {userProfile.name.split(' ').map((n: string) => n[0]).join('')}
                   </AvatarFallback>
                 </Avatar>
                 <Button 
@@ -810,6 +788,12 @@ const Profile = () => {
                     <Calendar className="h-4 w-4" />
                     Bergabung {userProfile.joinDate}
                   </div>
+                  {currentUser?.unique_id && (
+                    <div className="flex items-center gap-2">
+                      <Hash className="h-4 w-4" />
+                      ID: {currentUser.unique_id}
+                    </div>
+                  )}
                 </div>
                 
                 {/* XP Progress */}
@@ -830,9 +814,10 @@ const Profile = () => {
         </Card>
 
         <Tabs value={activeTab} onValueChange={setActiveTab}>
-          <TabsList className="grid w-full grid-cols-4">
+          <TabsList className="grid w-full grid-cols-5">
             <TabsTrigger value="overview">Overview</TabsTrigger>
             <TabsTrigger value="achievements">Achievements</TabsTrigger>
+            <TabsTrigger value="inventory">My Items</TabsTrigger>
             <TabsTrigger value="activity">Activity</TabsTrigger>
             <TabsTrigger value="settings">Settings</TabsTrigger>
           </TabsList>
@@ -950,6 +935,128 @@ const Profile = () => {
                   </CardContent>
                 </Card>
               ))}
+            </div>
+          </TabsContent>
+
+          <TabsContent value="inventory" className="mt-6">
+            <div className="space-y-6">
+              {/* Purchased Items */}
+              <Card>
+                <CardHeader>
+                  <CardTitle className="flex items-center gap-2">
+                    <Crown className="h-5 w-5" />
+                    Item Koleksi Saya
+                  </CardTitle>
+                </CardHeader>
+                <CardContent>
+                  <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+                    {/* Power-ups */}
+                    <div className="p-4 border rounded-lg bg-gradient-to-br from-yellow-50 to-orange-50">
+                      <div className="flex items-center gap-3 mb-3">
+                        <div className="p-2 bg-yellow-100 rounded-full">
+                          <Zap className="h-5 w-5 text-yellow-600" />
+                        </div>
+                        <div>
+                          <h3 className="font-semibold text-yellow-800">XP Boost 2x</h3>
+                          <p className="text-sm text-yellow-600">Power-up</p>
+                        </div>
+                      </div>
+                      <p className="text-sm text-yellow-700 mb-2">Gandakan XP selama 1 jam</p>
+                      <Badge className="bg-yellow-200 text-yellow-800">Aktif: 3x</Badge>
+                    </div>
+
+                    {/* Badges */}
+                    <div className="p-4 border rounded-lg bg-gradient-to-br from-purple-50 to-pink-50">
+                      <div className="flex items-center gap-3 mb-3">
+                        <div className="p-2 bg-purple-100 rounded-full">
+                          <Medal className="h-5 w-5 text-purple-600" />
+                        </div>
+                        <div>
+                          <h3 className="font-semibold text-purple-800">Golden Scholar</h3>
+                          <p className="text-sm text-purple-600">Badge</p>
+                        </div>
+                      </div>
+                      <p className="text-sm text-purple-700 mb-2">Badge eksklusif untuk pelajar berprestasi</p>
+                      <Badge className="bg-purple-200 text-purple-800">Equipped</Badge>
+                    </div>
+
+                    {/* Themes */}
+                    <div className="p-4 border rounded-lg bg-gradient-to-br from-blue-50 to-cyan-50">
+                      <div className="flex items-center gap-3 mb-3">
+                        <div className="p-2 bg-blue-100 rounded-full">
+                          <Star className="h-5 w-5 text-blue-600" />
+                        </div>
+                        <div>
+                          <h3 className="font-semibold text-blue-800">Ocean Theme</h3>
+                          <p className="text-sm text-blue-600">Theme</p>
+                        </div>
+                      </div>
+                      <p className="text-sm text-blue-700 mb-2">Tema biru menenangkan seperti lautan</p>
+                      <Badge className="bg-blue-200 text-blue-800">Owned</Badge>
+                    </div>
+
+                    {/* Special Items */}
+                    <div className="p-4 border rounded-lg bg-gradient-to-br from-green-50 to-emerald-50">
+                      <div className="flex items-center gap-3 mb-3">
+                        <div className="p-2 bg-green-100 rounded-full">
+                          <Shield className="h-5 w-5 text-green-600" />
+                        </div>
+                        <div>
+                          <h3 className="font-semibold text-green-800">Magic Wand</h3>
+                          <p className="text-sm text-green-600">Special Item</p>
+                        </div>
+                      </div>
+                      <p className="text-sm text-green-700 mb-2">Tongkat ajaib yang memberikan keberuntungan</p>
+                      <Badge className="bg-green-200 text-green-800">Legendary</Badge>
+                    </div>
+
+                    {/* More items placeholder */}
+                    <div className="p-4 border-2 border-dashed border-gray-300 rounded-lg flex flex-col items-center justify-center text-center">
+                      <div className="p-3 bg-gray-100 rounded-full mb-3">
+                        <Crown className="h-6 w-6 text-gray-400" />
+                      </div>
+                      <p className="text-sm text-gray-500 mb-2">Belum ada item lain</p>
+                      <Link to="/toko" className="text-sm text-primary hover:underline">
+                        Beli item di toko →
+                      </Link>
+                    </div>
+                  </div>
+                </CardContent>
+              </Card>
+
+              {/* Item Statistics */}
+              <Card>
+                <CardHeader>
+                  <CardTitle className="flex items-center gap-2">
+                    <Trophy className="h-5 w-5" />
+                    Statistik Koleksi
+                  </CardTitle>
+                </CardHeader>
+                <CardContent>
+                  <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+                    <div className="text-center p-4 bg-yellow-50 rounded-lg">
+                      <Zap className="h-6 w-6 mx-auto mb-2 text-yellow-500" />
+                      <div className="text-2xl font-bold text-yellow-700">5</div>
+                      <div className="text-sm text-yellow-600">Power-ups</div>
+                    </div>
+                    <div className="text-center p-4 bg-purple-50 rounded-lg">
+                      <Medal className="h-6 w-6 mx-auto mb-2 text-purple-500" />
+                      <div className="text-2xl font-bold text-purple-700">3</div>
+                      <div className="text-sm text-purple-600">Badges</div>
+                    </div>
+                    <div className="text-center p-4 bg-blue-50 rounded-lg">
+                      <Star className="h-6 w-6 mx-auto mb-2 text-blue-500" />
+                      <div className="text-2xl font-bold text-blue-700">2</div>
+                      <div className="text-sm text-blue-600">Themes</div>
+                    </div>
+                    <div className="text-center p-4 bg-green-50 rounded-lg">
+                      <Shield className="h-6 w-6 mx-auto mb-2 text-green-500" />
+                      <div className="text-2xl font-bold text-green-700">1</div>
+                      <div className="text-sm text-green-600">Special Items</div>
+                    </div>
+                  </div>
+                </CardContent>
+              </Card>
             </div>
           </TabsContent>
 

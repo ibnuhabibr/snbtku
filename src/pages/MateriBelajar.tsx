@@ -5,7 +5,6 @@ import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { Progress } from '@/components/ui/progress';
 import { 
-  BookOpen, 
   Brain, 
   FileText, 
   Calculator, 
@@ -13,14 +12,8 @@ import {
   Languages, 
   PenTool,
   Target,
-  Clock,
-  Users,
-  Star,
   ArrowRight,
   Play,
-  CheckCircle,
-  Download,
-  Eye,
   FileDown
 } from 'lucide-react';
 import { Link } from 'react-router-dom';
@@ -144,14 +137,7 @@ const materialSections: MaterialSection[] = [
 const MateriBelajar: React.FC = () => {
   const [hoveredCard, setHoveredCard] = useState<string | null>(null);
 
-  const getDifficultyColor = (difficulty: string) => {
-    switch (difficulty) {
-      case 'Mudah': return 'bg-green-100 text-green-800';
-      case 'Sedang': return 'bg-yellow-100 text-yellow-800';
-      case 'Sulit': return 'bg-red-100 text-red-800';
-      default: return 'bg-gray-100 text-gray-800';
-    }
-  };
+  // Removed unused getDifficultyColor function
 
   const tpsSections = materialSections.slice(0, 4);
   const literasiSections = materialSections.slice(4, 7);
@@ -160,41 +146,10 @@ const MateriBelajar: React.FC = () => {
     <div className="min-h-screen bg-gradient-to-br from-background via-primary/5 to-accent/5">
       <Navigation />
       
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 pt-20 md:pt-24">
 
 
-        {/* Stats Overview */}
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-12">
-          <Card className="text-center">
-            <CardContent className="p-6">
-              <div className="flex items-center justify-center mb-4">
-                <BookOpen className="h-12 w-12 text-blue-600" />
-              </div>
-              <h3 className="text-2xl font-bold text-gray-900 mb-2">7</h3>
-              <p className="text-muted-foreground">Kategori Materi</p>
-            </CardContent>
-          </Card>
-          
-          <Card className="text-center">
-            <CardContent className="p-6">
-              <div className="flex items-center justify-center mb-4">
-                <Target className="h-12 w-12 text-green-600" />
-              </div>
-              <h3 className="text-2xl font-bold text-gray-900 mb-2">87</h3>
-              <p className="text-muted-foreground">Total Pelajaran</p>
-            </CardContent>
-          </Card>
-          
-          <Card className="text-center">
-            <CardContent className="p-6">
-              <div className="flex items-center justify-center mb-4">
-                <Clock className="h-12 w-12 text-purple-600" />
-              </div>
-              <h3 className="text-2xl font-bold text-gray-900 mb-2">44</h3>
-              <p className="text-muted-foreground">Jam Pembelajaran</p>
-            </CardContent>
-          </Card>
-        </div>
+
 
         {/* TPS Section */}
         <div className="mb-16">
@@ -208,68 +163,78 @@ const MateriBelajar: React.FC = () => {
             </div>
           </div>
           
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-2 gap-8">
             {tpsSections.map((section) => (
               <Card 
                 key={section.id} 
-                className={`group hover:shadow-xl transition-all duration-300 cursor-pointer transform hover:-translate-y-1 bg-gradient-to-br ${section.bgGradient}`}
+                className={`group hover:shadow-xl transition-all duration-300 cursor-pointer transform hover:-translate-y-2 bg-gradient-to-br ${section.bgGradient} border-0 shadow-lg`}
                 onMouseEnter={() => setHoveredCard(section.id)}
                 onMouseLeave={() => setHoveredCard(null)}
               >
-                <CardHeader>
+                <CardHeader className="pb-4">
                   <div className="flex items-center justify-center mb-4">
-                    <div className={`p-4 rounded-xl bg-white shadow-sm ${section.color}`}>
+                    <div className={`p-4 rounded-xl bg-white shadow-md ${section.color} group-hover:scale-110 transition-transform duration-300`}>
                       {section.icon}
                     </div>
                   </div>
-                  <CardTitle className="text-xl mb-3 text-center group-hover:text-primary transition-colors">
+                  <CardTitle className="text-xl mb-3 text-center group-hover:text-primary transition-colors font-bold">
                     {section.title}
                   </CardTitle>
-                  <CardDescription className="text-sm text-center">
+                  <CardDescription className="text-sm text-center text-gray-600 leading-relaxed">
                     {section.description}
                   </CardDescription>
                 </CardHeader>
                 
-                <CardContent>
-                  <div className="space-y-4">
+                <CardContent className="pt-2">
+                  <div className="space-y-6">
                     {/* Progress */}
-                    <div>
+                    <div className="bg-white/50 rounded-lg p-3">
                       <div className="flex justify-between text-sm mb-2">
-                        <span className="text-muted-foreground">Progress</span>
-                        <span className="font-medium">{section.progress}%</span>
+                        <span className="text-gray-600 font-medium">Progress Belajar</span>
+                        <span className="font-bold text-gray-800">{section.progress}%</span>
                       </div>
-                      <Progress value={section.progress} className="h-2" />
+                      <Progress value={section.progress} className="h-3 bg-gray-200" />
                     </div>
                     
-                    {/* Stats */}
-                    <div className="grid grid-cols-3 gap-4 text-center">
-                      <div>
-                        <p className="text-2xl font-bold text-gray-900">{section.completedLessons}</p>
-                        <p className="text-xs text-muted-foreground">Selesai</p>
-                      </div>
-                      <div>
-                        <p className="text-2xl font-bold text-gray-900">{section.totalLessons}</p>
-                        <p className="text-xs text-muted-foreground">Total</p>
-                      </div>
-                      <div>
-                        <p className="text-2xl font-bold text-gray-900">{section.estimatedTime}</p>
-                        <p className="text-xs text-muted-foreground">Durasi</p>
+                    {/* Topics */}
+                    <div className="space-y-3">
+                      <p className="text-sm font-semibold text-gray-700 text-center">Topik Pembelajaran:</p>
+                      <div className="flex flex-wrap gap-2 justify-center">
+                        {section.topics.slice(0, 3).map((topic, index) => (
+                          <Badge key={index} variant="secondary" className="text-xs px-3 py-1 bg-white/70 text-gray-700 hover:bg-white transition-colors">
+                            {topic}
+                          </Badge>
+                        ))}
+                        {section.topics.length > 3 && (
+                          <Badge variant="secondary" className="text-xs px-3 py-1 bg-white/70 text-gray-700 hover:bg-white transition-colors">
+                            +{section.topics.length - 3} lainnya
+                          </Badge>
+                        )}
                       </div>
                     </div>
                     
-
-                    
-                    {/* Action Button */}
-                    <Link to={`/materi-belajar/${section.id}`} className="w-full">
-                      <Button 
-                        className="w-full group-hover:bg-primary group-hover:text-primary-foreground transition-colors"
-                        variant={hoveredCard === section.id ? "default" : "outline"}
-                      >
-                        <Play className="h-4 w-4 mr-2" />
-                        Mulai Belajar
-                        <ArrowRight className="h-4 w-4 ml-2" />
-                      </Button>
-                    </Link>
+                    {/* Action Buttons */}
+                    <div className="mt-8 space-y-3">
+                      <Link to={`/materi-belajar/${section.id}`} className="w-full">
+                        <Button 
+                          className="w-full group-hover:bg-primary group-hover:text-primary-foreground transition-all duration-300 font-semibold py-3 shadow-md hover:shadow-lg"
+                          variant={hoveredCard === section.id ? "default" : "outline"}
+                        >
+                          <Play className="h-4 w-4 mr-2" />
+                          Mulai Belajar
+                          <ArrowRight className="h-4 w-4 ml-2" />
+                        </Button>
+                      </Link>
+                      <Link to={`/rangkuman/${section.id}`} className="w-full">
+                        <Button 
+                          className="w-full transition-all duration-300 font-medium py-2 text-sm"
+                          variant="ghost"
+                        >
+                          <FileDown className="h-4 w-4 mr-2" />
+                          Lihat Rangkuman
+                        </Button>
+                      </Link>
+                    </div>
                   </div>
                 </CardContent>
               </Card>
@@ -289,67 +254,78 @@ const MateriBelajar: React.FC = () => {
             </div>
           </div>
           
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
             {literasiSections.map((section) => (
               <Card 
                 key={section.id} 
-                className={`group hover:shadow-xl transition-all duration-300 cursor-pointer transform hover:-translate-y-1 bg-gradient-to-br ${section.bgGradient}`}
+                className={`group hover:shadow-xl transition-all duration-300 cursor-pointer transform hover:-translate-y-2 bg-gradient-to-br ${section.bgGradient} border-0 shadow-lg`}
                 onMouseEnter={() => setHoveredCard(section.id)}
                 onMouseLeave={() => setHoveredCard(null)}
               >
-                <CardHeader>
+                <CardHeader className="pb-4">
                   <div className="text-center">
-                    <div className={`inline-flex p-4 rounded-full bg-white shadow-sm ${section.color} mb-4`}>
+                    <div className={`inline-flex p-4 rounded-full bg-white shadow-md ${section.color} mb-4 group-hover:scale-110 transition-transform duration-300`}>
                       {section.icon}
                     </div>
-                    <CardTitle className="text-xl mb-2 group-hover:text-primary transition-colors">
+                    <CardTitle className="text-xl mb-2 group-hover:text-primary transition-colors font-bold">
                       {section.title}
                     </CardTitle>
-                    <CardDescription className="text-sm">
+                    <CardDescription className="text-sm text-gray-600 leading-relaxed">
                       {section.description}
                     </CardDescription>
                   </div>
                 </CardHeader>
                 
-                <CardContent>
-                  <div className="space-y-4">
+                <CardContent className="pt-2">
+                  <div className="space-y-6">
                     {/* Progress */}
-                    <div>
+                    <div className="bg-white/50 rounded-lg p-3">
                       <div className="flex justify-between text-sm mb-2">
-                        <span className="text-muted-foreground">Progress</span>
-                        <span className="font-medium">{section.progress}%</span>
+                        <span className="text-gray-600 font-medium">Progress Belajar</span>
+                        <span className="font-bold text-gray-800">{section.progress}%</span>
                       </div>
-                      <Progress value={section.progress} className="h-2" />
+                      <Progress value={section.progress} className="h-3 bg-gray-200" />
                     </div>
                     
-                    {/* Stats */}
-                    <div className="grid grid-cols-3 gap-2 text-center">
-                      <div>
-                        <p className="text-lg font-bold text-gray-900">{section.completedLessons}</p>
-                        <p className="text-xs text-muted-foreground">Selesai</p>
-                      </div>
-                      <div>
-                        <p className="text-lg font-bold text-gray-900">{section.totalLessons}</p>
-                        <p className="text-xs text-muted-foreground">Total</p>
-                      </div>
-                      <div>
-                        <p className="text-lg font-bold text-gray-900">{section.estimatedTime}</p>
-                        <p className="text-xs text-muted-foreground">Durasi</p>
+                    {/* Topics */}
+                    <div className="space-y-3">
+                      <p className="text-sm font-semibold text-gray-700 text-center">Topik Pembelajaran:</p>
+                      <div className="flex flex-wrap gap-2 justify-center">
+                        {section.topics.slice(0, 3).map((topic, index) => (
+                          <Badge key={index} variant="secondary" className="text-xs px-3 py-1 bg-white/70 text-gray-700 hover:bg-white transition-colors">
+                            {topic}
+                          </Badge>
+                        ))}
+                        {section.topics.length > 3 && (
+                          <Badge variant="secondary" className="text-xs px-3 py-1 bg-white/70 text-gray-700 hover:bg-white transition-colors">
+                            +{section.topics.length - 3} lainnya
+                          </Badge>
+                        )}
                       </div>
                     </div>
                     
-
-                    
-                    {/* Action Button */}
-                    <Link to={`/materi-belajar/${section.id}`} className="w-full">
-                      <Button 
-                        className="w-full group-hover:bg-primary group-hover:text-primary-foreground transition-colors"
-                        variant={hoveredCard === section.id ? "default" : "outline"}
-                      >
-                        <Play className="h-4 w-4 mr-2" />
-                        Mulai Belajar
-                      </Button>
-                    </Link>
+                    {/* Action Buttons */}
+                    <div className="mt-8 space-y-3">
+                      <Link to={`/materi-belajar/${section.id}`} className="w-full">
+                        <Button 
+                          className="w-full group-hover:bg-primary group-hover:text-primary-foreground transition-all duration-300 font-semibold py-3 shadow-md hover:shadow-lg"
+                          variant={hoveredCard === section.id ? "default" : "outline"}
+                        >
+                          <Play className="h-4 w-4 mr-2" />
+                          Mulai Belajar
+                          <ArrowRight className="h-4 w-4 ml-2" />
+                        </Button>
+                      </Link>
+                      <Link to={`/rangkuman/${section.id}`} className="w-full">
+                        <Button 
+                          className="w-full transition-all duration-300 font-medium py-2 text-sm"
+                          variant="ghost"
+                        >
+                          <FileDown className="h-4 w-4 mr-2" />
+                          Lihat Rangkuman
+                        </Button>
+                      </Link>
+                    </div>
                   </div>
                 </CardContent>
               </Card>
@@ -357,50 +333,7 @@ const MateriBelajar: React.FC = () => {
           </div>
         </div>
 
-        {/* Rangkuman Section */}
-        <div className="mb-16">
-          <div className="text-center mb-12">
-            <div className="flex items-center justify-center w-16 h-16 bg-gradient-to-r from-blue-500 to-purple-600 rounded-full mx-auto mb-4">
-              <FileDown className="h-8 w-8 text-white" />
-            </div>
-            <h2 className="text-3xl font-bold text-gray-900 mb-2">Rangkuman Materi</h2>
-            <p className="text-lg text-muted-foreground">Akses rangkuman lengkap untuk setiap subtes SNBT</p>
-          </div>
-          
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-            {materialSections.map((section) => (
-              <Card key={`summary-${section.id}`} className="group hover:shadow-lg transition-all duration-300 border-2 hover:border-primary/20">
-                <CardHeader className="text-center pb-4">
-                  <div className={`inline-flex p-3 rounded-lg bg-gradient-to-br ${section.bgGradient} mb-3`}>
-                    <div className={`${section.color}`}>
-                      {section.icon}
-                    </div>
-                  </div>
-                  <CardTitle className="text-lg font-semibold group-hover:text-primary transition-colors">
-                    {section.title}
-                  </CardTitle>
-                </CardHeader>
-                <CardContent className="pt-0">
-                  <div className="space-y-3">
-                    <div className="text-sm text-muted-foreground text-center">
-                      Rangkuman lengkap dan ringkas
-                    </div>
-                    <Link to={`/rangkuman/${section.id}`} className="w-full">
-                      <Button 
-                        className="w-full group-hover:bg-primary group-hover:text-primary-foreground transition-colors"
-                        variant="outline"
-                      >
-                        <Eye className="h-4 w-4 mr-2" />
-                        Lihat Rangkuman
-                        <ArrowRight className="h-4 w-4 ml-2" />
-                      </Button>
-                    </Link>
-                  </div>
-                </CardContent>
-              </Card>
-            ))}
-          </div>
-        </div>
+
 
         {/* Action Button - Moved to Bottom */}
         <div className="text-center mb-16">

@@ -15,39 +15,40 @@ const dummyPaketTryout: ITryoutPackageSNBT = {
   blocks: [
     {
       urutan: 1,
-      nama_blok: 'Tes Potensi Skolastik (TPS)',
+      nama_block: 'Tes Potensi Skolastik (TPS)',
+      deskripsi: 'Tes kemampuan penalaran dan pemahaman umum',
       waktu_pengerjaan_menit: 5, // Shortened for demo
-      soal_ids: [
-        dummySoal.find(s => s.id === 'PU001')!,
-        dummySoal.find(s => s.id === 'PU002')!,
-        dummySoal.find(s => s.id === 'PPU001')!,
-        dummySoal.find(s => s.id === 'KMBM001')!,
-        dummySoal.find(s => s.id === 'PK001')!,
-      ]
+      soal_ids: ['PU001', 'PU002', 'PPU001', 'KMBM001', 'PK001'],
+      subtests_included: ['Penalaran Umum', 'Pengetahuan & Pemahaman Umum', 'Pemahaman Bacaan & Menulis', 'Pengetahuan Kuantitatif']
     },
     {
       urutan: 2,
-      nama_blok: 'Literasi dalam Bahasa Indonesia dan Inggris',
+      nama_block: 'Literasi dalam Bahasa Indonesia dan Inggris',
+      deskripsi: 'Tes kemampuan literasi bahasa Indonesia dan Inggris',
       waktu_pengerjaan_menit: 3, // Shortened for demo
-      soal_ids: [
-        dummySoal.find(s => s.id === 'LBI001')!,
-        dummySoal.find(s => s.id === 'LBE001')!,
-        dummySoal.find(s => s.id === 'PPU002')!,
-      ]
+      soal_ids: ['LBI001', 'LBE001', 'PPU002'],
+      subtests_included: ['Literasi B. Indonesia', 'Literasi B. Inggris']
     },
     {
       urutan: 3,
-      nama_blok: 'Penalaran Matematika',
+      nama_block: 'Penalaran Matematika',
+      deskripsi: 'Tes kemampuan penalaran matematika',
       waktu_pengerjaan_menit: 2, // Shortened for demo
-      soal_ids: [
-        dummySoal.find(s => s.id === 'PM001')!,
-        dummySoal.find(s => s.id === 'PK002')!,
-        dummySoal.find(s => s.id === 'PU003')!,
-      ]
+      soal_ids: ['PM001', 'PK002', 'PU003'],
+      subtests_included: ['Penalaran Matematika']
     }
   ],
-  total_waktu_menit: 10,
+  total_waktu: 10,
   total_soal: 11,
+  tingkat_kesulitan: 'Mudah',
+  kategori: 'Simulasi Lengkap',
+  metadata: {
+    pembuat: 'System',
+    tahun_soal: 2024,
+    versi: '1.0',
+    tags: ['demo', 'simulasi']
+  },
+  published: true,
   created_at: new Date(),
   updated_at: new Date()
 };
@@ -103,7 +104,7 @@ const TryoutDemo = () => {
                   <div className="text-sm text-muted-foreground">Total Soal</div>
                 </div>
                 <div className="text-center p-4 bg-blue-50 rounded-lg">
-                  <div className="text-2xl font-bold text-blue-600">{dummyPaketTryout.total_waktu_menit}</div>
+                  <div className="text-2xl font-bold text-blue-600">{dummyPaketTryout.total_waktu}</div>
                   <div className="text-sm text-muted-foreground">Menit</div>
                 </div>
               </div>
@@ -115,7 +116,7 @@ const TryoutDemo = () => {
                   <div key={index} className="border rounded-lg p-4">
                     <div className="flex justify-between items-start mb-2">
                       <div>
-                        <h4 className="font-semibold">Blok {block.urutan}: {block.nama_blok}</h4>
+                        <h4 className="font-semibold">Blok {block.urutan}: {block.nama_block}</h4>
                         <p className="text-sm text-muted-foreground">
                           {block.soal_ids.length} soal • {block.waktu_pengerjaan_menit} menit
                         </p>
@@ -125,12 +126,12 @@ const TryoutDemo = () => {
                     <div className="mt-3">
                       <p className="text-sm font-medium mb-2">Subtest yang diujikan:</p>
                       <div className="flex flex-wrap gap-2">
-                        {[...new Set(block.soal_ids.map(soal => soal.subtest))].map(subtest => (
+                        {[...new Set(block.soal_ids.map(soalId => dummySoal.find(s => s.id === soalId)?.subtest).filter(Boolean))].map(subtest => (
                           <span 
                             key={subtest} 
                             className="px-2 py-1 bg-secondary text-secondary-foreground rounded text-xs"
                           >
-                            {subtest.replace(/_/g, ' ').toUpperCase()}
+                            {subtest?.replace(/_/g, ' ').toUpperCase()}
                           </span>
                         ))}
                       </div>

@@ -42,7 +42,7 @@ export const getMaterials = async (
   filter?: MaterialFilter,
   lastDoc?: QueryDocumentSnapshot<DocumentData>,
   pageSize: number = 10
-): Promise<{ materials: Material[]; lastDoc: QueryDocumentSnapshot<DocumentData> | null }> => {
+): Promise<{ materials: Material[]; lastDoc: QueryDocumentSnapshot<DocumentData> | null | undefined }> => {
   try {
     let materialsQuery = collection(db, MATERIALS_COLLECTION);
     let constraints = [];

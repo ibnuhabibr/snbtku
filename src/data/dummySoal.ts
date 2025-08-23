@@ -5,191 +5,235 @@ export const dummySoal: ISoal[] = [
   // Penalaran Umum
   {
     id: 'PU001',
-    subtest: 'penalaran_umum',
+    subtest: 'Penalaran Umum',
     pertanyaan: 'Semua mahasiswa rajin belajar. Budi adalah mahasiswa. Kesimpulan yang tepat adalah...',
-    pilihan_jawaban: [
-      { id: 'A', teks: 'Budi rajin belajar' },
-      { id: 'B', teks: 'Budi tidak rajin belajar' },
-      { id: 'C', teks: 'Budi mungkin rajin belajar' },
-      { id: 'D', teks: 'Tidak dapat disimpulkan' }
-    ],
+    pilihan_jawaban: {
+      A: 'Budi rajin belajar',
+      B: 'Budi tidak rajin belajar',
+      C: 'Budi mungkin rajin belajar',
+      D: 'Tidak dapat disimpulkan',
+      E: 'Semua jawaban salah'
+    },
     jawaban_benar: 'A',
     pembahasan: 'Berdasarkan silogisme, jika semua mahasiswa rajin belajar dan Budi adalah mahasiswa, maka Budi pasti rajin belajar.',
-    tingkat_kesulitan: 'mudah',
-    estimasi_waktu_detik: 90,
-    tags: ['logika', 'silogisme']
+    tingkat_kesulitan: 'Mudah',
+    kategori_kognitif: 'C3',
+    waktu_pengerjaan_detik: 90,
+    tags: ['logika', 'silogisme'],
+    created_at: new Date(),
+    updated_at: new Date()
   },
   {
     id: 'PU002',
-    subtest: 'penalaran_umum',
+    subtest: 'Penalaran Umum',
     pertanyaan: 'Dalam sebuah kompetisi, jika A lebih cepat dari B, dan B lebih cepat dari C, maka...',
-    pilihan_jawaban: [
-      { id: 'A', teks: 'A lebih cepat dari C' },
-      { id: 'B', teks: 'C lebih cepat dari A' },
-      { id: 'C', teks: 'A sama cepat dengan C' },
-      { id: 'D', teks: 'Tidak dapat ditentukan' }
-    ],
+    pilihan_jawaban: {
+      A: 'A lebih cepat dari C',
+      B: 'C lebih cepat dari A',
+      C: 'A sama cepat dengan C',
+      D: 'Tidak dapat ditentukan',
+      E: 'Semua jawaban benar'
+    },
     jawaban_benar: 'A',
     pembahasan: 'Ini adalah contoh hubungan transitif. Jika A > B dan B > C, maka A > C.',
-    tingkat_kesulitan: 'mudah',
-    estimasi_waktu_detik: 75,
-    tags: ['logika', 'perbandingan']
+    tingkat_kesulitan: 'Mudah',
+    kategori_kognitif: 'C2',
+    waktu_pengerjaan_detik: 75,
+    tags: ['logika', 'perbandingan'],
+    created_at: new Date(),
+    updated_at: new Date()
   },
   {
     id: 'PU003',
-    subtest: 'penalaran_umum',
+    subtest: 'Penalaran Umum',
     pertanyaan: 'Sebuah pola: 2, 6, 12, 20, 30, ... Angka selanjutnya adalah...',
-    pilihan_jawaban: [
-      { id: 'A', teks: '40' },
-      { id: 'B', teks: '42' },
-      { id: 'C', teks: '44' },
-      { id: 'D', teks: '46' }
-    ],
+    pilihan_jawaban: {
+      A: '40',
+      B: '42',
+      C: '44',
+      D: '46',
+      E: '48'
+    },
     jawaban_benar: 'B',
     pembahasan: 'Pola: n(n+1) dimana n = 1,2,3,4,5,6... Untuk n=6: 6×7 = 42',
-    tingkat_kesulitan: 'sedang',
-    estimasi_waktu_detik: 120,
-    tags: ['pola', 'matematika']
+    tingkat_kesulitan: 'Sedang',
+    kategori_kognitif: 'C4',
+    waktu_pengerjaan_detik: 120,
+    tags: ['pola', 'matematika'],
+    created_at: new Date(),
+    updated_at: new Date()
   },
 
-  // Pengetahuan dan Pemahaman Umum
+  // Pengetahuan & Pemahaman Umum
   {
     id: 'PPU001',
-    subtest: 'pengetahuan_pemahaman_umum',
+    subtest: 'Pengetahuan & Pemahaman Umum',
     pertanyaan: 'Pancasila sebagai dasar negara Indonesia ditetapkan pada tanggal...',
-    pilihan_jawaban: [
-      { id: 'A', teks: '17 Agustus 1945' },
-      { id: 'B', teks: '18 Agustus 1945' },
-      { id: 'C', teks: '1 Juni 1945' },
-      { id: 'D', teks: '22 Juni 1945' }
-    ],
+    pilihan_jawaban: {
+      A: '17 Agustus 1945',
+      B: '18 Agustus 1945',
+      C: '1 Juni 1945',
+      D: '22 Juni 1945',
+      E: '29 Mei 1945'
+    },
     jawaban_benar: 'B',
     pembahasan: 'Pancasila ditetapkan sebagai dasar negara pada 18 Agustus 1945 dalam sidang PPKI.',
-    tingkat_kesulitan: 'mudah',
-    estimasi_waktu_detik: 60,
-    tags: ['sejarah', 'pancasila']
+    tingkat_kesulitan: 'Mudah',
+    kategori_kognitif: 'C1',
+    waktu_pengerjaan_detik: 60,
+    tags: ['sejarah', 'pancasila'],
+    created_at: new Date(),
+    updated_at: new Date()
   },
   {
     id: 'PPU002',
-    subtest: 'pengetahuan_pemahaman_umum',
+    subtest: 'Pengetahuan & Pemahaman Umum',
     pertanyaan: 'Proses fotosintesis pada tumbuhan menghasilkan...',
-    pilihan_jawaban: [
-      { id: 'A', teks: 'Karbon dioksida dan air' },
-      { id: 'B', teks: 'Oksigen dan glukosa' },
-      { id: 'C', teks: 'Nitrogen dan protein' },
-      { id: 'D', teks: 'Hidrogen dan karbohidrat' }
-    ],
+    pilihan_jawaban: {
+      A: 'Karbon dioksida dan air',
+      B: 'Oksigen dan glukosa',
+      C: 'Nitrogen dan protein',
+      D: 'Hidrogen dan karbohidrat',
+      E: 'Klorofil dan ATP'
+    },
     jawaban_benar: 'B',
     pembahasan: 'Fotosintesis mengubah CO2 dan H2O menjadi glukosa (C6H12O6) dan oksigen (O2) dengan bantuan sinar matahari.',
-    tingkat_kesulitan: 'mudah',
-    estimasi_waktu_detik: 75,
-    tags: ['biologi', 'fotosintesis']
+    tingkat_kesulitan: 'Mudah',
+    kategori_kognitif: 'C2',
+    waktu_pengerjaan_detik: 75,
+    tags: ['biologi', 'fotosintesis'],
+    created_at: new Date(),
+    updated_at: new Date()
   },
 
-  // Kemampuan Memahami Bacaan dan Menulis
+  // Pemahaman Bacaan & Menulis
   {
     id: 'KMBM001',
-    subtest: 'kemampuan_memahami_bacaan_menulis',
+    subtest: 'Pemahaman Bacaan & Menulis',
     pertanyaan: 'Bacalah paragraf berikut!\n\n"Teknologi artificial intelligence (AI) semakin berkembang pesat. Namun, perkembangan ini juga menimbulkan kekhawatiran tentang masa depan pekerjaan manusia. Banyak ahli berpendapat bahwa AI akan menggantikan berbagai profesi."\n\nIde pokok paragraf tersebut adalah...',
-    pilihan_jawaban: [
-      { id: 'A', teks: 'Teknologi AI berkembang sangat pesat' },
-      { id: 'B', teks: 'AI menimbulkan kekhawatiran tentang pekerjaan' },
-      { id: 'C', teks: 'Perkembangan AI dan dampaknya terhadap pekerjaan' },
-      { id: 'D', teks: 'Ahli berpendapat AI akan menggantikan profesi' }
-    ],
+    pilihan_jawaban: {
+      A: 'Teknologi AI berkembang sangat pesat',
+      B: 'AI menimbulkan kekhawatiran tentang pekerjaan',
+      C: 'Perkembangan AI dan dampaknya terhadap pekerjaan',
+      D: 'Ahli berpendapat AI akan menggantikan profesi',
+      E: 'Masa depan pekerjaan manusia tidak pasti'
+    },
     jawaban_benar: 'C',
     pembahasan: 'Ide pokok mencakup keseluruhan isi paragraf: perkembangan AI yang pesat dan dampaknya terhadap kekhawatiran tentang masa depan pekerjaan.',
-    tingkat_kesulitan: 'sedang',
-    estimasi_waktu_detik: 150,
-    tags: ['membaca', 'ide_pokok']
+    tingkat_kesulitan: 'Sedang',
+    kategori_kognitif: 'C3',
+    waktu_pengerjaan_detik: 150,
+    tags: ['membaca', 'ide_pokok'],
+    created_at: new Date(),
+    updated_at: new Date()
   },
 
   // Pengetahuan Kuantitatif
   {
     id: 'PK001',
-    subtest: 'pengetahuan_kuantitatif',
+    subtest: 'Pengetahuan Kuantitatif',
     pertanyaan: 'Jika 2x + 3y = 12 dan x - y = 1, maka nilai x + y adalah...',
-    pilihan_jawaban: [
-      { id: 'A', teks: '3' },
-      { id: 'B', teks: '4' },
-      { id: 'C', teks: '5' },
-      { id: 'D', teks: '6' }
-    ],
+    pilihan_jawaban: {
+      A: '3',
+      B: '4',
+      C: '5',
+      D: '6',
+      E: '7'
+    },
     jawaban_benar: 'C',
     pembahasan: 'Dari x - y = 1, maka x = y + 1. Substitusi ke persamaan pertama: 2(y+1) + 3y = 12, sehingga 5y = 10, y = 2, x = 3. Jadi x + y = 5.',
-    tingkat_kesulitan: 'sedang',
-    estimasi_waktu_detik: 180,
-    tags: ['aljabar', 'sistem_persamaan']
+    tingkat_kesulitan: 'Sedang',
+    kategori_kognitif: 'C3',
+    waktu_pengerjaan_detik: 180,
+    tags: ['aljabar', 'sistem_persamaan'],
+    created_at: new Date(),
+    updated_at: new Date()
   },
   {
     id: 'PK002',
-    subtest: 'pengetahuan_kuantitatif',
+    subtest: 'Pengetahuan Kuantitatif',
     pertanyaan: 'Luas segitiga dengan alas 8 cm dan tinggi 6 cm adalah...',
-    pilihan_jawaban: [
-      { id: 'A', teks: '24 cm²' },
-      { id: 'B', teks: '28 cm²' },
-      { id: 'C', teks: '32 cm²' },
-      { id: 'D', teks: '48 cm²' }
-    ],
+    pilihan_jawaban: {
+      A: '24 cm²',
+      B: '28 cm²',
+      C: '32 cm²',
+      D: '48 cm²',
+      E: '96 cm²'
+    },
     jawaban_benar: 'A',
     pembahasan: 'Luas segitiga = ½ × alas × tinggi = ½ × 8 × 6 = 24 cm²',
-    tingkat_kesulitan: 'mudah',
-    estimasi_waktu_detik: 90,
-    tags: ['geometri', 'luas']
+    tingkat_kesulitan: 'Mudah',
+    kategori_kognitif: 'C2',
+    waktu_pengerjaan_detik: 90,
+    tags: ['geometri', 'luas'],
+    created_at: new Date(),
+    updated_at: new Date()
   },
 
-  // Literasi dalam Bahasa Indonesia
+  // Literasi B. Indonesia
   {
     id: 'LBI001',
-    subtest: 'literasi_bahasa_indonesia',
+    subtest: 'Literasi B. Indonesia',
     pertanyaan: 'Kalimat yang menggunakan kata baku adalah...',
-    pilihan_jawaban: [
-      { id: 'A', teks: 'Dia merubah jadwal rapat' },
-      { id: 'B', teks: 'Dia mengubah jadwal rapat' },
-      { id: 'C', teks: 'Dia ngerubah jadwal rapat' },
-      { id: 'D', teks: 'Dia rubah jadwal rapat' }
-    ],
+    pilihan_jawaban: {
+      A: 'Dia merubah jadwal rapat',
+      B: 'Dia mengubah jadwal rapat',
+      C: 'Dia ngerubah jadwal rapat',
+      D: 'Dia rubah jadwal rapat',
+      E: 'Dia berubah jadwal rapat'
+    },
     jawaban_benar: 'B',
     pembahasan: 'Kata baku yang benar adalah "mengubah", bukan "merubah". Awalan "me-" + "ubah" = "mengubah".',
-    tingkat_kesulitan: 'mudah',
-    estimasi_waktu_detik: 60,
-    tags: ['bahasa', 'kata_baku']
+    tingkat_kesulitan: 'Mudah',
+    kategori_kognitif: 'C1',
+    waktu_pengerjaan_detik: 60,
+    tags: ['bahasa', 'kata_baku'],
+    created_at: new Date(),
+    updated_at: new Date()
   },
 
-  // Literasi dalam Bahasa Inggris
+  // Literasi B. Inggris
   {
     id: 'LBE001',
-    subtest: 'literasi_bahasa_inggris',
+    subtest: 'Literasi B. Inggris',
     pertanyaan: 'Choose the correct sentence:',
-    pilihan_jawaban: [
-      { id: 'A', teks: 'She have been studying for three hours' },
-      { id: 'B', teks: 'She has been studying for three hours' },
-      { id: 'C', teks: 'She had been studying for three hours' },
-      { id: 'D', teks: 'She having been studying for three hours' }
-    ],
+    pilihan_jawaban: {
+      A: 'She have been studying for three hours',
+      B: 'She has been studying for three hours',
+      C: 'She had been studying for three hours',
+      D: 'She having been studying for three hours',
+      E: 'She have studying for three hours'
+    },
     jawaban_benar: 'B',
     pembahasan: 'Present perfect continuous tense menggunakan "has/have + been + V-ing". Untuk subjek "she" menggunakan "has".',
-    tingkat_kesulitan: 'sedang',
-    estimasi_waktu_detik: 90,
-    tags: ['grammar', 'tenses']
+    tingkat_kesulitan: 'Sedang',
+    kategori_kognitif: 'C2',
+    waktu_pengerjaan_detik: 90,
+    tags: ['grammar', 'tenses'],
+    created_at: new Date(),
+    updated_at: new Date()
   },
 
   // Penalaran Matematika
   {
     id: 'PM001',
-    subtest: 'penalaran_matematika',
+    subtest: 'Penalaran Matematika',
     pertanyaan: 'Sebuah toko memberikan diskon 20% untuk pembelian di atas Rp 100.000. Jika seseorang membeli barang seharga Rp 150.000, berapa yang harus dibayar?',
-    pilihan_jawaban: [
-      { id: 'A', teks: 'Rp 120.000' },
-      { id: 'B', teks: 'Rp 125.000' },
-      { id: 'C', teks: 'Rp 130.000' },
-      { id: 'D', teks: 'Rp 135.000' }
-    ],
+    pilihan_jawaban: {
+      A: 'Rp 120.000',
+      B: 'Rp 125.000',
+      C: 'Rp 130.000',
+      D: 'Rp 135.000',
+      E: 'Rp 140.000'
+    },
     jawaban_benar: 'A',
     pembahasan: 'Diskon 20% dari Rp 150.000 = 0.2 × 150.000 = Rp 30.000. Yang harus dibayar = 150.000 - 30.000 = Rp 120.000',
-    tingkat_kesulitan: 'mudah',
-    estimasi_waktu_detik: 120,
-    tags: ['aritmatika', 'persentase']
+    tingkat_kesulitan: 'Mudah',
+    kategori_kognitif: 'C3',
+    waktu_pengerjaan_detik: 120,
+    tags: ['aritmatika', 'persentase'],
+    created_at: new Date(),
+    updated_at: new Date()
   }
 ];
 
@@ -203,13 +247,13 @@ export const getJumlahSoalPerSubtest = (): Record<TSubtestSNBT, number> => {
   const result = {} as Record<TSubtestSNBT, number>;
   
   const subtests: TSubtestSNBT[] = [
-    'penalaran_umum',
-    'pengetahuan_pemahaman_umum', 
-    'kemampuan_memahami_bacaan_menulis',
-    'pengetahuan_kuantitatif',
-    'literasi_bahasa_indonesia',
-    'literasi_bahasa_inggris',
-    'penalaran_matematika'
+    'Penalaran Umum',
+    'Pengetahuan & Pemahaman Umum', 
+    'Pemahaman Bacaan & Menulis',
+    'Pengetahuan Kuantitatif',
+    'Literasi B. Indonesia',
+    'Literasi B. Inggris',
+    'Penalaran Matematika'
   ];
   
   subtests.forEach(subtest => {

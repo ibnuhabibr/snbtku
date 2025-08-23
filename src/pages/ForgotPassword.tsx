@@ -9,7 +9,7 @@ import { Input } from "@/components/ui/input";
 import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from "@/components/ui/form";
 import { Alert, AlertDescription } from "@/components/ui/alert";
 import { useToast } from "@/hooks/use-toast";
-import { useAuth } from "@/contexts/AuthContext";
+import { useAuthStore } from "@/stores/authStore";
 import { resetPassword } from "@/lib/firebase";
 
 // Skema validasi untuk form reset password
@@ -24,17 +24,17 @@ type ForgotPasswordFormValues = z.infer<typeof forgotPasswordSchema>;
 const ForgotPassword = () => {
   const navigate = useNavigate();
   const { toast } = useToast();
-  const { currentUser } = useAuth();
+  const { isAuthenticated } = useAuthStore();
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [success, setSuccess] = useState(false);
 
   // Redirect to dashboard if user is already logged in
   useEffect(() => {
-    if (currentUser) {
+    if (isAuthenticated) {
       navigate('/dashboard');
     }
-  }, [currentUser, navigate]);
+  }, [isAuthenticated, navigate]);
 
   // Inisialisasi form dengan react-hook-form dan zod validator
   const form = useForm<ForgotPasswordFormValues>({

@@ -1,0 +1,19 @@
+User-agent: *
+Allow: /
+
+# Disallow admin routes
+Disallow: /admin/
+Disallow: /api/
+
+# Disallow auth pages from indexing
+Disallow: /login
+Disallow: /register
+Disallow: /forgot-password
+Disallow: /profile
+Disallow: /settings
+
+# Sitemap location
+Sitemap: https://snbtku.com/sitemap.xml
+
+# Crawl delay
+Crawl-delay: 1

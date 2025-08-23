@@ -1,20 +1,16 @@
 import React, { useState, useEffect } from 'react';
-import { useParams, useNavigate, Link } from 'react-router-dom';
+import { useParams, Link } from 'react-router-dom';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { Progress } from '@/components/ui/progress';
 import {
   ArrowLeft,
-  Clock,
   CheckCircle,
   X,
   ChevronLeft,
   ChevronRight,
-  Flag,
   AlertCircle,
-  Trophy,
-  Target,
   Eye
 } from 'lucide-react';
 import Navigation from '@/components/Navigation';
@@ -164,7 +160,7 @@ const sampleQuestions: Question[] = [
 
 const PracticeSession: React.FC = () => {
   const { subtestId, topicId } = useParams<{ subtestId: string; topicId: string }>();
-  const navigate = useNavigate();
+  // const navigate = useNavigate(); // Removed unused variable
   
   // State for current question and progress
   const [currentQuestionIndex, setCurrentQuestionIndex] = useState(0);
@@ -210,7 +206,7 @@ const PracticeSession: React.FC = () => {
 
   // Load current question state
   useEffect(() => {
-    const currentProgress = questionProgress[currentQuestion?.id];
+    const currentProgress = currentQuestion?.id ? questionProgress[currentQuestion.id] : undefined;
     if (currentProgress) {
       setSelectedAnswer(currentProgress.selectedAnswer || '');
       setIsAnswerChecked(currentProgress.isChecked || false);
@@ -245,13 +241,13 @@ const PracticeSession: React.FC = () => {
       return;
     }
 
-    const correctOption = currentQuestion.options.find(opt => opt.isCorrect);
+    const correctOption = currentQuestion?.options.find(opt => opt.isCorrect);
     const isCorrect = selectedAnswer === correctOption?.id;
 
     const updatedProgress = {
       ...questionProgress,
-      [currentQuestion.id]: {
-        questionId: currentQuestion.id,
+      [currentQuestion?.id || '']: {
+        questionId: currentQuestion?.id || '',
         selectedAnswer,
         isAnswered: true,
         isChecked: true,
@@ -350,7 +346,7 @@ const PracticeSession: React.FC = () => {
               <CardTitle className="text-lg">
                 Soal {currentQuestionIndex + 1}
               </CardTitle>
-              {questionProgress[currentQuestion.id]?.isChecked && (
+              {currentQuestion && questionProgress[currentQuestion.id]?.isChecked && (
                 <div className="flex items-center gap-2">
                   {questionProgress[currentQuestion.id]?.isCorrect ? (
                     <CheckCircle className="h-5 w-5 text-green-600" />
@@ -369,10 +365,10 @@ const PracticeSession: React.FC = () => {
             </div>
           </CardHeader>
           <CardContent>
-            <p className="text-lg mb-6">{currentQuestion.text}</p>
+            <p className="text-lg mb-6">{currentQuestion?.text}</p>
             
             <div className="space-y-3 mb-6">
-              {currentQuestion.options.map((option) => {
+              {currentQuestion?.options.map((option) => {
                 const isSelected = selectedAnswer === option.id;
                 const isCorrect = option.isCorrect;
                 const showResult = isAnswerChecked;
@@ -437,7 +433,7 @@ const PracticeSession: React.FC = () => {
                   <AlertCircle className="h-5 w-5 text-blue-600 mt-0.5 flex-shrink-0" />
                   <div>
                     <h4 className="font-semibold text-blue-800 mb-2">Pembahasan:</h4>
-                    <p className="text-blue-700">{currentQuestion.explanation}</p>
+                    <p className="text-blue-700">{currentQuestion?.explanation}</p>
                   </div>
                 </div>
               </div>

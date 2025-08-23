@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React from 'react';
 import { useParams, Link } from 'react-router-dom';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
@@ -689,7 +689,7 @@ const subtestPractices: Record<string, SubtestPractice> = {
 
 const PracticeSubtes: React.FC = () => {
   const { subtestId } = useParams<{ subtestId: string }>();
-  const [selectedTopic, setSelectedTopic] = useState<string | null>(null);
+  // Removed unused selectedTopic state
 
   const subtest = subtestId ? subtestPractices[subtestId] : null;
 
@@ -840,7 +840,7 @@ const PracticeSubtes: React.FC = () => {
 
         {/* Topics Grid */}
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-          {subtest.topics.map((topic, index) => {
+          {subtest.topics.map((topic) => {
             const isLocked = topic.locked;
             const isCompleted = topic.completed;
             

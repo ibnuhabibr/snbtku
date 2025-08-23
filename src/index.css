@@ -4,6 +4,62 @@
 @tailwind components;
 @tailwind utilities;
 
+@layer base {
+  :root {
+    --background: 0 0% 100%;
+    --foreground: 222.2 84% 4.9%;
+    --card: 0 0% 100%;
+    --card-foreground: 222.2 84% 4.9%;
+    --popover: 0 0% 100%;
+    --popover-foreground: 222.2 84% 4.9%;
+    --primary: 222.2 47.4% 11.2%;
+    --primary-foreground: 210 40% 98%;
+    --secondary: 210 40% 96%;
+    --secondary-foreground: 222.2 84% 4.9%;
+    --muted: 210 40% 96%;
+    --muted-foreground: 215.4 16.3% 46.9%;
+    --accent: 210 40% 96%;
+    --accent-foreground: 222.2 84% 4.9%;
+    --destructive: 0 84.2% 60.2%;
+    --destructive-foreground: 210 40% 98%;
+    --border: 214.3 31.8% 91.4%;
+    --input: 214.3 31.8% 91.4%;
+    --ring: 222.2 84% 4.9%;
+    --radius: 0.5rem;
+  }
+
+  .dark {
+    --background: 222.2 84% 4.9%;
+    --foreground: 210 40% 98%;
+    --card: 222.2 84% 4.9%;
+    --card-foreground: 210 40% 98%;
+    --popover: 222.2 84% 4.9%;
+    --popover-foreground: 210 40% 98%;
+    --primary: 210 40% 98%;
+    --primary-foreground: 222.2 47.4% 11.2%;
+    --secondary: 217.2 32.6% 17.5%;
+    --secondary-foreground: 210 40% 98%;
+    --muted: 217.2 32.6% 17.5%;
+    --muted-foreground: 215 20.2% 65.1%;
+    --accent: 217.2 32.6% 17.5%;
+    --accent-foreground: 210 40% 98%;
+    --destructive: 0 62.8% 30.6%;
+    --destructive-foreground: 210 40% 98%;
+    --border: 217.2 32.6% 17.5%;
+    --input: 217.2 32.6% 17.5%;
+    --ring: 212.7 26.8% 83.9%;
+  }
+}
+
+@layer base {
+  * {
+    @apply border-border;
+  }
+  body {
+    @apply bg-background text-foreground;
+  }
+}
+
 /* Custom scrollbar styles */
 @layer utilities {
   .scrollbar-thin {
@@ -51,6 +107,55 @@
 
 /* SNBTKU Design System - Modern Educational Platform */
 @layer base {
+  /* Global optimizations to prevent blink and layout shifting */
+  * {
+    box-sizing: border-box;
+  }
+  
+  html {
+    scroll-behavior: smooth;
+  }
+  
+  body {
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+    text-rendering: optimizeLegibility;
+  }
+  
+  /* Prevent flash of unstyled content */
+  .react-loading {
+    opacity: 0;
+    transition: opacity 0.3s ease-in-out;
+  }
+  
+  .react-loaded {
+    opacity: 1;
+  }
+  
+  /* Performance optimizations to reduce flickering */
+  .transform-gpu {
+    transform: translate3d(0, 0, 0);
+  }
+  
+  .backface-hidden {
+    backface-visibility: hidden;
+    -webkit-backface-visibility: hidden;
+  }
+  
+  /* Smooth transitions for navigation */
+  .transition-smooth {
+    transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+  }
+  
+  /* Prevent layout shift during navigation */
+  .will-change-transform {
+    will-change: transform;
+  }
+  
+  /* Optimize rendering for fixed elements */
+  .fixed {
+    transform: translateZ(0);
+  }
   :root {
     /* Core Brand Colors */
     --background: 0 0% 99%;
@@ -250,6 +355,44 @@
   .transition-bounce {
     transition: var(--transition-bounce);
   }
+  
+  /* Prevent layout shifting and blink */
+  .prevent-layout-shift {
+    contain: layout style paint;
+    will-change: transform;
+  }
+  
+  /* Optimize rendering performance */
+  .gpu-accelerated {
+    transform: translateZ(0);
+    backface-visibility: hidden;
+    perspective: 1000px;
+  }
+  
+  /* Smooth page transitions */
+   .page-transition {
+     transition: opacity 0.2s ease-in-out, transform 0.2s ease-in-out;
+   }
+   
+   /* Prevent common blink issues */
+   .no-blink {
+     -webkit-backface-visibility: hidden;
+     backface-visibility: hidden;
+     -webkit-transform: translateZ(0);
+     transform: translateZ(0);
+   }
+   
+   /* Optimize frequently changing elements */
+   .dynamic-content {
+     contain: layout style;
+     will-change: contents;
+   }
+   
+   /* Smooth category transitions */
+   .category-transition {
+     transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+     transform: translateZ(0);
+   }
 }
 
 @layer utilities {

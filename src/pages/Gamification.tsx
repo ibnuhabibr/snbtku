@@ -1,9 +1,10 @@
-import React, { useState } from 'react';
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import { useState, useEffect } from 'react';
+import { Card, CardContent } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Badge } from '@/components/ui/badge';
 import { Progress } from '@/components/ui/progress';
+import { useNavigate } from 'react-router-dom';
 import { 
   Gamepad2, 
   Trophy, 
@@ -11,13 +12,14 @@ import {
   Star, 
   Gift, 
   Users, 
-  BarChart3,
+  // BarChart3, // Removed unused import
   Crown,
   Flame,
   Award,
-  Sparkles,
+  // Sparkles, // Removed unused import
   Zap,
-  BookOpen
+  BookOpen,
+  TrendingUp
 } from 'lucide-react';
 import { motion } from 'framer-motion';
 import Navigation from '@/components/Navigation';
@@ -27,8 +29,16 @@ import GameStats from '@/components/GameStats';
 import RewardNotification from '@/components/RewardNotification';
 import LevelUpAnimation from '@/components/LevelUpAnimation';
 import HappyAvatarSelector from '@/components/HappyAvatarSelector';
+import { DailyCheckIn } from '@/components/gamification/DailyCheckIn';
+import { UserStats } from '@/components/gamification/UserStats';
+// import { QuestList } from '@/components/gamification/QuestList'; // Removed unused import
+import { useSocket } from '@/hooks/useSocket';
+import { useAuthStore } from '@/stores/authStore';
 
 const Gamification = () => {
+  const { user } = useAuthStore();
+  const socket = useSocket();
+  const navigate = useNavigate();
   const [showGamificationSystem, setShowGamificationSystem] = useState(false);
   const [showAvatarSelector, setShowAvatarSelector] = useState(false);
   const [showRewardNotification, setShowRewardNotification] = useState(false);
@@ -58,6 +68,15 @@ const Gamification = () => {
     }
   ];
 
+  useEffect(() => {
+    // Initialize socket connection when component mounts
+    if (user && socket) {
+      console.log('Gamification page loaded with socket connection');
+    }
+  }, [user, socket]);
+
+  // Removed unused handleQuestComplete function
+
   const demoLevelUpData = {
     oldLevel: 11,
     newLevel: 12,
@@ -71,101 +90,15 @@ const Gamification = () => {
     }
   };
 
-  const features = [
-    {
-      title: 'Quest System',
-      description: 'Sistem quest harian, mingguan, dan spesial dengan reward menarik',
-      icon: Target,
-      color: 'text-blue-600',
-      bgColor: 'bg-blue-100',
-      action: () => setShowGamificationSystem(true)
-    },
-    {
-      title: 'Achievement System',
-      description: 'Koleksi achievement dengan berbagai tingkat kesulitan dan rarity',
-      icon: Trophy,
-      color: 'text-yellow-600',
-      bgColor: 'bg-yellow-100',
-      action: () => setShowGamificationSystem(true)
-    },
-    {
-      title: 'Reward Store',
-      description: 'Toko reward dengan avatar, badge, theme, dan boost eksklusif',
-      icon: Gift,
-      color: 'text-purple-600',
-      bgColor: 'bg-purple-100',
-      action: () => setShowGamificationSystem(true)
-    },
-    {
-      title: 'Happy Avatar Collection',
-      description: 'Koleksi avatar lucu dan tersenyum dengan berbagai kategori',
-      icon: () => <div className="h-5 w-5 text-pink-600">😊</div>,
-      color: 'text-pink-600',
-      bgColor: 'bg-pink-100',
-      action: () => setShowAvatarSelector(true)
-    },
-    {
-      title: 'Level & XP System',
-      description: 'Sistem level dengan animasi menarik dan reward eksklusif',
-      icon: Crown,
-      color: 'text-orange-600',
-      bgColor: 'bg-orange-100',
-      action: () => setShowLevelUpAnimation(true)
-    },
-    {
-      title: 'Reward Notifications',
-      description: 'Notifikasi reward yang menarik dengan animasi sparkle',
-      icon: Sparkles,
-      color: 'text-indigo-600',
-      bgColor: 'bg-indigo-100',
-      action: () => setShowRewardNotification(true)
-    }
-  ];
+  // Removed unused features array
 
-  const gamificationBenefits = [
-    {
-      title: 'Motivasi Belajar',
-      description: 'Sistem reward dan achievement meningkatkan motivasi belajar siswa',
-      icon: Flame,
-      color: 'text-red-500'
-    },
-    {
-      title: 'Engagement Tinggi',
-      description: 'Quest dan challenge membuat proses belajar lebih menarik dan interaktif',
-      icon: Zap,
-      color: 'text-yellow-500'
-    },
-    {
-      title: 'Progress Tracking',
-      description: 'Siswa dapat melihat progress belajar mereka dengan jelas melalui XP dan level',
-      icon: BarChart3,
-      color: 'text-blue-500'
-    },
-    {
-      title: 'Social Learning',
-      description: 'Leaderboard dan kompetisi sehat mendorong pembelajaran sosial',
-      icon: Users,
-      color: 'text-green-500'
-    },
-    {
-      title: 'Personalisasi',
-      description: 'Avatar dan customization memberikan pengalaman personal yang unik',
-      icon: Star,
-      color: 'text-purple-500'
-    },
-    {
-      title: 'Long-term Retention',
-      description: 'Sistem streak dan habit building membantu konsistensi belajar jangka panjang',
-      icon: Award,
-      color: 'text-pink-500'
-    }
-  ];
+  // Removed unused gamificationBenefits array
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-background via-primary/5 to-accent/5">
       <Navigation />
       
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 pt-24 md:pt-28">
         {/* Header */}
         <motion.div
           initial={{ opacity: 0, y: 20 }}
@@ -175,7 +108,7 @@ const Gamification = () => {
           <div className="flex items-center justify-center gap-3 mb-4">
             <Gamepad2 className="h-12 w-12 text-primary" />
             <h1 className="text-4xl font-bold bg-gradient-to-r from-primary to-purple-600 bg-clip-text text-transparent">
-              Sistem Gamifikasi SNBT
+              Naik Rank, Kuy!
             </h1>
           </div>
           <p className="text-xl text-muted-foreground max-w-3xl mx-auto">
@@ -196,6 +129,35 @@ const Gamification = () => {
               <div className="w-full max-w-4xl">
                 <GameStats showDetailed={true} />
               </div>
+            </div>
+            
+            {/* Integrated Components */}
+            <div className="flex justify-center">
+              <div className="w-full max-w-md">
+                <DailyCheckIn />
+              </div>
+            </div>
+            
+            <UserStats />
+            
+            {/* Quick Actions - Moved to bottom */}
+            <div className="flex justify-center gap-4 mt-8">
+              <Button 
+                onClick={() => navigate('/toko')}
+                className="bg-gradient-to-r from-purple-600 to-pink-600 hover:from-purple-700 hover:to-pink-700 text-white px-6 py-3"
+                size="lg"
+              >
+                <Gift className="h-5 w-5 mr-2" />
+                Buka Toko Reward
+              </Button>
+              <Button 
+                onClick={() => setShowAvatarSelector(true)}
+                variant="outline"
+                className="px-6 py-3"
+                size="lg"
+              >
+                😊 Ganti Avatar
+              </Button>
             </div>
           </TabsContent>
 
@@ -267,6 +229,106 @@ const Gamification = () => {
                   maxProgress: 50,
                   completed: false,
                   reward: "400 XP + Akses Materi Premium"
+                },
+                {
+                  title: "Math Genius",
+                  description: "Selesaikan 100 soal matematika",
+                  icon: Target,
+                  color: "text-red-500",
+                  progress: 67,
+                  maxProgress: 100,
+                  completed: false,
+                  reward: "800 XP + Badge Matematika"
+                },
+                {
+                  title: "Early Bird",
+                  description: "Belajar sebelum jam 7 pagi selama 5 hari",
+                  icon: Crown,
+                  color: "text-amber-500",
+                  progress: 2,
+                  maxProgress: 5,
+                  completed: false,
+                  reward: "300 XP + Title Early Bird"
+                },
+                {
+                  title: "Night Owl",
+                  description: "Belajar setelah jam 10 malam selama 5 hari",
+                  icon: Star,
+                  color: "text-purple-400",
+                  progress: 0,
+                  maxProgress: 5,
+                  completed: false,
+                  reward: "300 XP + Title Night Owl"
+                },
+                {
+                  title: "Perfect Score",
+                  description: "Dapatkan nilai 100 di try out",
+                  icon: Award,
+                  color: "text-gold-500",
+                  progress: 0,
+                  maxProgress: 1,
+                  completed: false,
+                  reward: "2000 XP + Avatar Emas"
+                },
+                {
+                  title: "Consistency King",
+                  description: "Belajar 30 hari berturut-turut",
+                  icon: Flame,
+                  color: "text-red-600",
+                  progress: 12,
+                  maxProgress: 30,
+                  completed: false,
+                  reward: "1500 XP + Crown Avatar"
+                },
+                {
+                  title: "Question Master",
+                  description: "Jawab 500 soal dengan benar",
+                  icon: Target,
+                  color: "text-green-600",
+                  progress: 234,
+                  maxProgress: 500,
+                  completed: false,
+                  reward: "1200 XP + Badge Master"
+                },
+                {
+                  title: "Speed Demon",
+                  description: "Selesaikan 10 soal dalam 5 menit",
+                  icon: Zap,
+                  color: "text-yellow-400",
+                  progress: 0,
+                  maxProgress: 1,
+                  completed: false,
+                  reward: "600 XP + Lightning Badge"
+                },
+                {
+                  title: "Comeback Kid",
+                  description: "Tingkatkan skor try out sebesar 50 poin",
+                  icon: TrendingUp,
+                  color: "text-emerald-500",
+                  progress: 0,
+                  maxProgress: 1,
+                  completed: false,
+                  reward: "800 XP + Comeback Badge"
+                },
+                {
+                  title: "Study Buddy",
+                  description: "Ajak 5 teman bergabung ke platform",
+                  icon: Users,
+                  color: "text-pink-500",
+                  progress: 1,
+                  maxProgress: 5,
+                  completed: false,
+                  reward: "1000 XP + Referral Badge"
+                },
+                {
+                  title: "Bookworm",
+                  description: "Baca 100 artikel pembelajaran",
+                  icon: BookOpen,
+                  color: "text-brown-500",
+                  progress: 45,
+                  maxProgress: 100,
+                  completed: false,
+                  reward: "700 XP + Scholar Badge"
                 }
               ].map((achievement, index) => {
                 const IconComponent = achievement.icon;

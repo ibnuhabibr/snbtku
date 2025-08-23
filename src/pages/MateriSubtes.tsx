@@ -16,7 +16,7 @@ import {
   Calculator,
   Languages,
   PenTool,
-  Award,
+  // Award, // Removed unused import
   ChevronRight,
   Star,
   Target
@@ -638,24 +638,24 @@ const MateriSubtes: React.FC = () => {
       <div className="bg-white border-b border-gray-200">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="flex items-center justify-between h-16">
-            <div className="flex items-center space-x-4">
+            <div className="flex items-center space-x-2 sm:space-x-4 flex-1 min-w-0">
               <Link 
                 to="/materi-belajar" 
-                className="p-2 hover:bg-gray-100 rounded-full transition-colors"
+                className="p-2 hover:bg-gray-100 rounded-full transition-colors flex-shrink-0"
               >
                 <ArrowLeft className="w-5 h-5 text-gray-600" />
               </Link>
-              <div className="flex items-center space-x-3">
-                <div className={`w-10 h-10 rounded-full flex items-center justify-center ${subtest.bgColor}`}>
-                  <subtest.icon className={`w-5 h-5 ${subtest.iconColor}`} />
+              <div className="flex items-center space-x-2 sm:space-x-3 min-w-0">
+                <div className={`w-8 h-8 sm:w-10 sm:h-10 rounded-full flex items-center justify-center ${subtest.bgColor} flex-shrink-0`}>
+                  <subtest.icon className={`w-4 h-4 sm:w-5 sm:h-5 ${subtest.iconColor}`} />
                 </div>
-                <div>
-                  <h1 className="text-xl font-bold text-gray-900">{subtest.title}</h1>
-                  <p className="text-sm text-gray-500">{subtest.description}</p>
+                <div className="min-w-0">
+                  <h1 className="text-lg sm:text-xl font-bold text-gray-900 truncate">{subtest.title}</h1>
+                  <p className="text-xs sm:text-sm text-gray-500 truncate hidden sm:block">{subtest.description}</p>
                 </div>
               </div>
             </div>
-            <div className="flex items-center space-x-4">
+            <div className="hidden md:flex items-center space-x-4 flex-shrink-0">
               <div className="text-right">
                 <p className="text-sm font-medium text-gray-900">
                   {subtest.completedTopics}/{subtest.totalTopics} Topik
@@ -666,24 +666,33 @@ const MateriSubtes: React.FC = () => {
                 <Progress value={progress} className="h-2" />
               </div>
             </div>
+            {/* Mobile progress indicator */}
+            <div className="md:hidden flex items-center space-x-2 flex-shrink-0">
+              <span className="text-xs font-medium text-gray-600">
+                {subtest.completedTopics}/{subtest.totalTopics}
+              </span>
+              <div className="w-12">
+                <Progress value={progress} className="h-1" />
+              </div>
+            </div>
           </div>
         </div>
       </div>
 
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
-        <div className="flex gap-8">
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 pt-20 md:pt-24">
+        <div className="grid grid-cols-1 lg:grid-cols-4 gap-6">
           {/* Sidebar */}
-          <div className="w-80 flex-shrink-0">
-            <Card>
-              <CardHeader>
-                <CardTitle className="flex items-center space-x-2">
-                  <BookOpen className="w-5 h-5" />
+          <div className="lg:col-span-1">
+            <Card className="lg:sticky lg:top-4">
+              <CardHeader className="pb-3">
+                <CardTitle className="flex items-center space-x-2 text-base sm:text-lg">
+                  <BookOpen className="w-4 h-4 sm:w-5 sm:h-5" />
                   <span>Daftar Materi</span>
                 </CardTitle>
               </CardHeader>
               <CardContent className="p-0">
-                <div className="space-y-1">
-                  {subtest.topics.map((topic, index) => {
+                <div className="space-y-1 max-h-96 lg:max-h-screen overflow-y-auto">
+                  {subtest.topics.map((topic) => {
                     const isLocked = topic.locked;
                     const isCompleted = topic.completed;
                     const isSelected = selectedTopic?.id === topic.id;
@@ -693,38 +702,38 @@ const MateriSubtes: React.FC = () => {
                         key={topic.id}
                         onClick={() => !isLocked && setSelectedTopic(topic)}
                         disabled={isLocked}
-                        className={`w-full p-4 text-left border-b border-gray-100 hover:bg-gray-50 transition-colors ${
+                        className={`w-full p-3 sm:p-4 text-left border-b border-gray-100 hover:bg-gray-50 transition-colors ${
                           isSelected ? 'bg-blue-50 border-l-4 border-l-blue-500' : ''
                         } ${isLocked ? 'opacity-50 cursor-not-allowed' : 'cursor-pointer'}`}
                       >
                         <div className="flex items-center justify-between">
-                          <div className="flex items-center space-x-3">
+                          <div className="flex items-center space-x-2 sm:space-x-3 flex-1 min-w-0">
                             <div className="flex-shrink-0">
                               {isCompleted ? (
-                                <CheckCircle className="w-5 h-5 text-green-500" />
+                                <CheckCircle className="w-4 h-4 sm:w-5 sm:h-5 text-green-500" />
                               ) : isLocked ? (
-                                <div className="w-5 h-5 rounded-full bg-gray-300" />
+                                <div className="w-4 h-4 sm:w-5 sm:h-5 rounded-full bg-gray-300" />
                               ) : (
-                                <Play className="w-5 h-5 text-blue-500" />
+                                <Play className="w-4 h-4 sm:w-5 sm:h-5 text-blue-500" />
                               )}
                             </div>
                             <div className="flex-1 min-w-0">
-                              <h4 className="text-sm font-medium text-gray-900 truncate">
+                              <h4 className="text-xs sm:text-sm font-medium text-gray-900 truncate">
                                 {topic.title}
                               </h4>
-                              <p className="text-xs text-gray-500 mt-1">
+                              <p className="text-xs text-gray-500 mt-1 hidden sm:block">
                                 {topic.duration}
                               </p>
                             </div>
                           </div>
-                          <div className="flex items-center space-x-2">
+                          <div className="flex items-center space-x-1 sm:space-x-2 flex-shrink-0">
                             <Badge 
                               variant="secondary" 
-                              className={`text-xs ${getDifficultyColor(topic.difficulty)}`}
+                              className={`text-xs hidden sm:inline-flex ${getDifficultyColor(topic.difficulty)}`}
                             >
                               {topic.difficulty}
                             </Badge>
-                            {!isLocked && <ChevronRight className="w-4 h-4 text-gray-400" />}
+                            {!isLocked && <ChevronRight className="w-3 h-3 sm:w-4 sm:h-4 text-gray-400" />}
                           </div>
                         </div>
                       </button>
@@ -736,19 +745,19 @@ const MateriSubtes: React.FC = () => {
           </div>
 
           {/* Main Content */}
-          <div className="flex-1">
+          <div className="lg:col-span-3">
             {selectedTopic ? (
               <Card>
                 <CardHeader>
-                  <div className="flex items-center justify-between">
+                  <div className="space-y-4">
                     <div>
                       <CardTitle className="flex items-center space-x-2">
                         <Target className="w-5 h-5 text-blue-600" />
-                        <span>{selectedTopic.title}</span>
+                        <span className="text-lg sm:text-xl">{selectedTopic.title}</span>
                       </CardTitle>
-                      <p className="text-gray-600 mt-2">{selectedTopic.description}</p>
+                      <p className="text-gray-600 mt-2 text-sm sm:text-base">{selectedTopic.description}</p>
                     </div>
-                    <div className="flex items-center space-x-4">
+                    <div className="flex flex-wrap items-center gap-2 sm:gap-4">
                       <div className="flex items-center space-x-2 text-sm text-gray-500">
                         <Clock className="w-4 h-4" />
                         <span>{selectedTopic.duration}</span>
@@ -768,29 +777,29 @@ const MateriSubtes: React.FC = () => {
                     </div>
                   </div>
                 </CardHeader>
-                <CardContent>
+                <CardContent className="p-4 sm:p-6">
                   <div className="prose max-w-none">
                     {selectedTopic.content ? (
-                      <div className="space-y-6">
-                        <p className="text-gray-700 leading-relaxed">
+                      <div className="space-y-4 sm:space-y-6">
+                        <p className="text-gray-700 leading-relaxed text-sm sm:text-base">
                           {selectedTopic.content}
                         </p>
                         
                         {/* Placeholder for actual content */}
-                        <div className="bg-blue-50 border border-blue-200 rounded-lg p-6">
-                          <h3 className="text-lg font-semibold text-blue-900 mb-3">
+                        <div className="bg-blue-50 border border-blue-200 rounded-lg p-4 sm:p-6">
+                          <h3 className="text-base sm:text-lg font-semibold text-blue-900 mb-3">
                             Konten Pembelajaran
                           </h3>
-                          <p className="text-blue-700 mb-4">
+                          <p className="text-blue-700 mb-4 text-sm sm:text-base">
                             Materi pembelajaran untuk topik "{selectedTopic.title}" akan ditampilkan di sini.
                             Konten dapat berupa teks, gambar, video, atau interactive elements.
                           </p>
-                          <div className="flex space-x-3">
-                            <Button size="sm" className="bg-blue-600 hover:bg-blue-700">
+                          <div className="flex flex-col sm:flex-row gap-2 sm:gap-3">
+                            <Button size="sm" className="bg-blue-600 hover:bg-blue-700 w-full sm:w-auto">
                               <Play className="w-4 h-4 mr-2" />
                               Mulai Belajar
                             </Button>
-                            <Button size="sm" variant="outline">
+                            <Button size="sm" variant="outline" className="w-full sm:w-auto">
                               <Star className="w-4 h-4 mr-2" />
                               Tandai Favorit
                             </Button>
@@ -798,12 +807,12 @@ const MateriSubtes: React.FC = () => {
                         </div>
                       </div>
                     ) : (
-                      <div className="text-center py-12">
-                        <BookOpen className="w-16 h-16 text-gray-300 mx-auto mb-4" />
-                        <h3 className="text-lg font-medium text-gray-900 mb-2">
+                      <div className="text-center py-8 sm:py-12">
+                        <BookOpen className="w-12 h-12 sm:w-16 sm:h-16 text-gray-300 mx-auto mb-4" />
+                        <h3 className="text-base sm:text-lg font-medium text-gray-900 mb-2">
                           Konten Sedang Dikembangkan
                         </h3>
-                        <p className="text-gray-500">
+                        <p className="text-gray-500 text-sm sm:text-base">
                           Materi untuk topik ini sedang dalam tahap pengembangan.
                         </p>
                       </div>
@@ -813,13 +822,13 @@ const MateriSubtes: React.FC = () => {
               </Card>
             ) : (
               <Card>
-                <CardContent className="flex items-center justify-center py-24">
-                  <div className="text-center">
-                    <BookOpen className="w-16 h-16 text-gray-300 mx-auto mb-4" />
-                    <h3 className="text-lg font-medium text-gray-900 mb-2">
+                <CardContent className="flex items-center justify-center py-12 sm:py-24">
+                  <div className="text-center px-4">
+                    <BookOpen className="w-12 h-12 sm:w-16 sm:h-16 text-gray-300 mx-auto mb-4" />
+                    <h3 className="text-base sm:text-lg font-medium text-gray-900 mb-2">
                       Pilih Materi untuk Dipelajari
                     </h3>
-                    <p className="text-gray-500">
+                    <p className="text-gray-500 text-sm sm:text-base">
                       Klik salah satu topik di sidebar untuk memulai pembelajaran.
                     </p>
                   </div>

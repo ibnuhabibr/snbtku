@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react";
+import { useState } from "react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -7,13 +7,13 @@ import { Textarea } from "@/components/ui/textarea";
 import { Badge } from "@/components/ui/badge";
 import { Checkbox } from "@/components/ui/checkbox";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
+import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { 
   Plus, 
   Trash2, 
   Search, 
-  Filter,
+  // Filter, // Removed unused import
   Clock,
   FileText,
   Save,
@@ -22,7 +22,7 @@ import {
 } from "lucide-react";
 import AdminNavigation from "@/components/AdminNavigation";
 import { ITryoutPackageSNBT, ITryoutBlock, ISoal, TSubtestSNBT } from "@/types/konten";
-import { dummySoal, getSoalBySubtest, getJumlahSoalPerSubtest } from '@/data/dummySoal';
+import { dummySoal } from '@/data/dummySoal';
 
 // Data bank soal dari file dummy
 const mockBankSoal: ISoal[] = dummySoal;
@@ -70,7 +70,7 @@ const TryoutManagement = () => {
   });
 
   // Statistik soal per subtest
-  const jumlahSoalPerSubtest = getJumlahSoalPerSubtest();
+  // const jumlahSoalPerSubtest = getJumlahSoalPerSubtest(); // Removed unused variable
 
   // Fungsi untuk menambah blok baru
   const addNewBlock = () => {
@@ -103,15 +103,17 @@ const TryoutManagement = () => {
     const updatedBlocks = [...blocks];
     updatedBlocks[index] = {
       ...updatedBlocks[index],
-      [field]: value
-    };
+      [field]: value,
+      soal_ids: updatedBlocks[index]?.soal_ids || [],
+      subtests_included: updatedBlocks[index]?.subtests_included || []
+    } as BlockFormData;
     setBlocks(updatedBlocks);
   };
 
   // Fungsi untuk membuka modal pemilihan soal
   const openSoalModal = (blockIndex: number) => {
     setCurrentBlockIndex(blockIndex);
-    setSelectedSoals(blocks[blockIndex].soal_ids);
+    setSelectedSoals(blocks[blockIndex]?.soal_ids || []);
     setIsModalOpen(true);
   };
 
@@ -153,11 +155,11 @@ const TryoutManagement = () => {
     // Validasi setiap blok
     for (let i = 0; i < blocks.length; i++) {
       const block = blocks[i];
-      if (!block.nama_block || block.waktu_pengerjaan_menit <= 0) {
+      if (!block?.nama_block || (block?.waktu_pengerjaan_menit || 0) <= 0) {
         alert(`Blok ${i + 1}: Nama blok dan waktu pengerjaan harus diisi dengan benar!`);
         return;
       }
-      if (block.soal_ids.length === 0) {
+      if ((block?.soal_ids || []).length === 0) {
         alert(`Blok ${i + 1}: Harus memilih minimal satu soal!`);
         return;
       }
@@ -179,8 +181,8 @@ const TryoutManagement = () => {
         deskripsi: block.deskripsi,
         waktu_pengerjaan_menit: block.waktu_pengerjaan_menit,
         soal_ids: block.soal_ids,
-        instruksi_khusus: block.instruksi_khusus,
-        break_setelah_blok: block.break_setelah_blok,
+        instruksi_khusus: block.instruksi_khusus || '',
+        break_setelah_blok: block.break_setelah_blok || 0,
         subtests_included: block.subtests_included
       })),
       tingkat_kesulitan: packageForm.tingkat_kesulitan,

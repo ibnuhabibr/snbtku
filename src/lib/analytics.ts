@@ -230,12 +230,14 @@ export class PerformanceMonitor {
       const entries = list.getEntries();
       const lastEntry = entries[entries.length - 1];
       
-      this.analytics.trackPerformance({
-        name: 'largest_contentful_paint',
-        value: lastEntry.startTime,
-        unit: 'ms',
-        timestamp: Date.now(),
-      });
+      if (lastEntry) {
+        this.analytics.trackPerformance({
+          name: 'largest_contentful_paint',
+          value: lastEntry.startTime,
+          unit: 'ms',
+          timestamp: Date.now(),
+        });
+      }
     }).observe({ entryTypes: ['largest-contentful-paint'] });
 
     // Track FID (First Input Delay)
@@ -244,7 +246,7 @@ export class PerformanceMonitor {
       entries.forEach((entry) => {
         this.analytics.trackPerformance({
           name: 'first_input_delay',
-          value: entry.processingStart - entry.startTime,
+          value: (entry as any).processingStart ? (entry as any).processingStart - entry.startTime : 0,
           unit: 'ms',
           timestamp: Date.now(),
         });

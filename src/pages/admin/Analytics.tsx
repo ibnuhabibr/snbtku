@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react";
+import { useState } from "react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
@@ -7,14 +7,14 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Progress } from "@/components/ui/progress";
 import { 
   TrendingUp,
-  TrendingDown,
+
   Users,
   BookOpen,
   Target,
   Clock,
   Trophy,
   Download,
-  Calendar,
+
   BarChart3,
   PieChart,
   Activity,
@@ -24,7 +24,7 @@ import {
   Star,
   Zap
 } from "lucide-react";
-import { Link } from "react-router-dom";
+
 import AdminNavigation from "@/components/AdminNavigation";
 
 interface AnalyticsData {

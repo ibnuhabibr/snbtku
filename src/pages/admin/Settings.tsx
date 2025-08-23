@@ -11,9 +11,9 @@ import { Separator } from "@/components/ui/separator";
 import { 
   Settings as SettingsIcon,
   Shield,
-  Mail,
+  // Mail, // Removed unused import
   Database,
-  Palette,
+  // Palette, // Removed unused import
   Bell,
   Users,
   Key,
@@ -26,7 +26,7 @@ import {
   Upload,
   Download
 } from "lucide-react";
-import { Link } from "react-router-dom";
+// import { Link } from "react-router-dom"; // Removed unused import
 import AdminNavigation from "@/components/AdminNavigation";
 
 interface SystemSettings {

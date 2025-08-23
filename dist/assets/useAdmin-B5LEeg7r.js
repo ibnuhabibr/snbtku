@@ -1,0 +1,2 @@
+import{u as e}from"./index-CImf8UwA.js";import{d as r,r as i}from"./router-vendor-xnFU-SGQ.js";const s=()=>{const{user:s,isAuthenticated:n}=e(),o=r(),u="admin"===(null==s?void 0:s.role)||"super_admin"===(null==s?void 0:s.role),t="super_admin"===(null==s?void 0:s.role);return i.useEffect(()=>{n?u||o("/"):o("/login")},[n,u,o]),{isAdmin:u,isSuperAdmin:t,user:s,isAuthenticated:n}};export{s as u};
+//# sourceMappingURL=useAdmin-B5LEeg7r.js.map

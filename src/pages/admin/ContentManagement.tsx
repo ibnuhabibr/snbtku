@@ -6,6 +6,9 @@ import { Input } from "@/components/ui/input";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
+import { Label } from "@/components/ui/label";
+import { Textarea } from "@/components/ui/textarea";
 import { 
   Search,
   Filter,
@@ -15,189 +18,204 @@ import {
   Eye,
   Download,
   Upload,
-  BookOpen,
   FileText,
   Target,
   MoreHorizontal,
   Calendar,
   Users,
-  Clock
+  Clock,
+  Save,
+  X
 } from "lucide-react";
-import { Link } from "react-router-dom";
 import AdminNavigation from "@/components/AdminNavigation";
+import { adminService, Question, QuestionFormData, TryoutPackage, TryoutPackageFormData } from "@/services/adminService";
+import { useToast } from "@/hooks/use-toast";
 
-interface Material {
-  id: string;
-  title: string;
-  subtest: string;
-  topic: string;
-  type: string;
-  status: string;
-  author: string;
-  createdAt: string;
-  views: number;
-  downloads: number;
-}
-
-interface Question {
-  id: string;
-  question: string;
-  subtest: string;
-  topic: string;
-  difficulty: string;
-  type: string;
-  status: string;
-  author: string;
-  createdAt: string;
-  usageCount: number;
-}
-
-interface TryOut {
-  id: string;
-  title: string;
-  description: string;
-  duration: number;
-  totalQuestions: number;
-  status: string;
-  scheduledDate: string;
-  participants: number;
-  createdAt: string;
-}
+// Interfaces are now imported from adminService
 
 const ContentManagement = () => {
-  const [activeTab, setActiveTab] = useState("materials");
+  const [activeTab, setActiveTab] = useState("questions");
   const [searchQuery, setSearchQuery] = useState("");
   const [filterStatus, setFilterStatus] = useState("all");
-  const [filterSubtest, setFilterSubtest] = useState("all");
+  const [filterSubject, setFilterSubject] = useState("all");
+  // const [loading, setLoading] = useState(false); // Removed unused variable
+  const [questions, setQuestions] = useState<Question[]>([]);
+  const [tryoutPackages, setTryoutPackages] = useState<TryoutPackage[]>([]);
+  const [isQuestionDialogOpen, setIsQuestionDialogOpen] = useState(false);
+  const [isTryoutDialogOpen, setIsTryoutDialogOpen] = useState(false);
+  const [editingQuestion, setEditingQuestion] = useState<Question | null>(null);
+  const [editingTryout, setEditingTryout] = useState<TryoutPackage | null>(null);
+  const { toast } = useToast();
 
-  // Mock data
-  const [materials, setMaterials] = useState<Material[]>([
-    {
-      id: "1",
-      title: "Penalaran Umum - Logika Dasar",
-      subtest: "TPS",
-      topic: "Penalaran Umum",
-      type: "PDF",
-      status: "published",
-      author: "Admin",
-      createdAt: "2024-01-15",
-      views: 2847,
-      downloads: 1234
-    },
-    {
-      id: "2",
-      title: "Fungsi dan Grafik - Konsep Lengkap",
-      subtest: "Matematika",
-      topic: "Fungsi",
-      type: "Video",
-      status: "draft",
-      author: "Dr. Matematika",
-      createdAt: "2024-01-14",
-      views: 1892,
-      downloads: 567
-    },
-    {
-      id: "3",
-      title: "Teks Argumentasi - Analisis Struktur",
-      subtest: "Literasi",
-      topic: "Teks Argumentasi",
-      type: "PDF",
-      status: "pending",
-      author: "Prof. Bahasa",
-      createdAt: "2024-01-13",
-      views: 2156,
-      downloads: 890
-    }
-  ]);
+  // Load data on component mount
+  useEffect(() => {
+    loadQuestions();
+    loadTryoutPackages();
+  }, []);
 
-  const [questions, setQuestions] = useState<Question[]>([
-    {
-      id: "1",
-      question: "Jika semua A adalah B, dan semua B adalah C, maka...",
-      subtest: "TPS",
-      topic: "Penalaran Umum",
-      difficulty: "Mudah",
-      type: "Multiple Choice",
-      status: "active",
-      author: "Admin",
-      createdAt: "2024-01-15",
-      usageCount: 156
-    },
-    {
-      id: "2",
-      question: "Tentukan nilai x dari persamaan 2x + 5 = 13",
-      subtest: "Matematika",
-      topic: "Aljabar",
-      difficulty: "Mudah",
-      type: "Multiple Choice",
-      status: "active",
-      author: "Dr. Matematika",
-      createdAt: "2024-01-14",
-      usageCount: 234
-    },
-    {
-      id: "3",
-      question: "Bacalah teks berikut dan tentukan ide pokok paragraf...",
-      subtest: "Literasi",
-      topic: "Pemahaman Bacaan",
-      difficulty: "Menengah",
-      type: "Multiple Choice",
-      status: "review",
-      author: "Prof. Bahasa",
-      createdAt: "2024-01-13",
-      usageCount: 89
+  const loadQuestions = async () => {
+    try {
+      const response = await adminService.getQuestions();
+      setQuestions(response.questions || []);
+    } catch (error) {
+      toast({
+        title: "Error",
+        description: "Failed to load questions",
+        variant: "destructive"
+      });
     }
-  ]);
+  };
 
-  const [tryouts, setTryouts] = useState<TryOut[]>([
-    {
-      id: "1",
-      title: "SNBT Try Out #15 - Simulasi Lengkap",
-      description: "Try out lengkap dengan 3 subtest sesuai format SNBT terbaru",
-      duration: 180,
-      totalQuestions: 120,
-      status: "active",
-      scheduledDate: "2024-01-20",
-      participants: 1247,
-      createdAt: "2024-01-10"
-    },
-    {
-      id: "2",
-      title: "SNBT Try Out #16 - Focus TPS",
-      description: "Try out khusus untuk subtest TPS dengan soal-soal terbaru",
-      duration: 90,
-      totalQuestions: 60,
-      status: "scheduled",
-      scheduledDate: "2024-01-25",
-      participants: 0,
-      createdAt: "2024-01-12"
-    },
-    {
-      id: "3",
-      title: "SNBT Try Out #14 - Evaluasi Lengkap",
-      description: "Try out evaluasi dengan analisis mendalam",
-      duration: 180,
-      totalQuestions: 120,
-      status: "completed",
-      scheduledDate: "2024-01-15",
-      participants: 892,
-      createdAt: "2024-01-08"
+  const loadTryoutPackages = async () => {
+    try {
+      const response = await adminService.getTryoutPackages();
+      setTryoutPackages(response.packages || []);
+    } catch (error) {
+      toast({
+        title: "Error",
+        description: "Failed to load tryout packages",
+        variant: "destructive"
+      });
     }
-  ]);
+  };
+
+  const handleCreateQuestion = async (data: QuestionFormData) => {
+    try {
+      await adminService.createQuestion(data);
+      toast({
+        title: "Success",
+        description: "Question created successfully"
+      });
+      setIsQuestionDialogOpen(false);
+      loadQuestions();
+    } catch (error) {
+      toast({
+        title: "Error",
+        description: "Failed to create question",
+        variant: "destructive"
+      });
+    }
+  };
+
+  const handleUpdateQuestion = async (id: string, data: QuestionFormData) => {
+    try {
+      await adminService.updateQuestion(id, data);
+      toast({
+        title: "Success",
+        description: "Question updated successfully"
+      });
+      setEditingQuestion(null);
+      loadQuestions();
+    } catch (error) {
+      toast({
+        title: "Error",
+        description: "Failed to update question",
+        variant: "destructive"
+      });
+    }
+  };
+
+  const handleDeleteQuestion = async (id: string) => {
+    if (!confirm('Are you sure you want to delete this question?')) return;
+    
+    try {
+      await adminService.deleteQuestion(id);
+      toast({
+        title: "Success",
+        description: "Question deleted successfully"
+      });
+      loadQuestions();
+    } catch (error) {
+      toast({
+        title: "Error",
+        description: "Failed to delete question",
+        variant: "destructive"
+      });
+    }
+  };
+
+  const handleCreateTryoutPackage = async (data: TryoutPackageFormData) => {
+    try {
+      await adminService.createTryoutPackage(data);
+      toast({
+        title: "Success",
+        description: "Tryout package created successfully"
+      });
+      setIsTryoutDialogOpen(false);
+      loadTryoutPackages();
+    } catch (error) {
+      toast({
+        title: "Error",
+        description: "Failed to create tryout package",
+        variant: "destructive"
+      });
+    }
+  };
+
+  const handleUpdateTryoutPackage = async (id: string, data: TryoutPackageFormData) => {
+    try {
+      await adminService.updateTryoutPackage(id, data);
+      toast({
+        title: "Success",
+        description: "Tryout package updated successfully"
+      });
+      setEditingTryout(null);
+      loadTryoutPackages();
+    } catch (error) {
+      toast({
+        title: "Error",
+        description: "Failed to update tryout package",
+        variant: "destructive"
+      });
+    }
+  };
+
+  const handleDeleteTryoutPackage = async (id: string) => {
+    if (!confirm('Are you sure you want to delete this tryout package?')) return;
+    
+    try {
+      await adminService.deleteTryoutPackage(id);
+      toast({
+        title: "Success",
+        description: "Tryout package deleted successfully"
+      });
+      loadTryoutPackages();
+    } catch (error) {
+      toast({
+        title: "Error",
+        description: "Failed to delete tryout package",
+        variant: "destructive"
+      });
+    }
+  };
+
+  // Filter functions
+  const filteredQuestions = questions.filter(question => {
+    const matchesSearch = question.question_text.toLowerCase().includes(searchQuery.toLowerCase()) ||
+                         question.subject.toLowerCase().includes(searchQuery.toLowerCase());
+    const matchesStatus = filterStatus === 'all' || question.review_status === filterStatus;
+    const matchesSubject = filterSubject === 'all' || question.subject === filterSubject;
+    return matchesSearch && matchesStatus && matchesSubject;
+  });
+
+  const filteredTryoutPackages = tryoutPackages.filter(pkg => {
+    const matchesSearch = pkg.title.toLowerCase().includes(searchQuery.toLowerCase()) ||
+                         (pkg.description || '').toLowerCase().includes(searchQuery.toLowerCase());
+    const matchesStatus = filterStatus === 'all' || (pkg.is_active ? 'active' : 'inactive') === filterStatus;
+    return matchesSearch && matchesStatus;
+  });
 
   const getStatusColor = (status: string) => {
     switch (status) {
-      case "published":
+      case "approved":
       case "active":
         return "bg-green-100 text-green-800";
       case "draft":
-      case "scheduled":
-        return "bg-blue-100 text-blue-800";
       case "pending":
-      case "review":
         return "bg-yellow-100 text-yellow-800";
-      case "completed":
-        return "bg-gray-100 text-gray-800";
+      case "rejected":
+      case "inactive":
+        return "bg-red-100 text-red-800";
       default:
         return "bg-gray-100 text-gray-800";
     }
@@ -205,19 +223,19 @@ const ContentManagement = () => {
 
   const getDifficultyColor = (difficulty: string) => {
     switch (difficulty?.toLowerCase()) {
-      case "mudah":
+      case "easy":
         return "bg-green-100 text-green-800";
-      case "menengah":
+      case "medium":
         return "bg-yellow-100 text-yellow-800";
-      case "sulit":
+      case "hard":
         return "bg-red-100 text-red-800";
       default:
         return "bg-gray-100 text-gray-800";
     }
   };
 
-  const getSubtestColor = (subtest: string) => {
-    switch (subtest?.toLowerCase()) {
+  const getSubjectColor = (subject: string) => {
+    switch (subject?.toLowerCase()) {
       case "tps":
         return "bg-blue-100 text-blue-800";
       case "literasi":
@@ -234,7 +252,7 @@ const ContentManagement = () => {
       {/* Header */}
       <AdminNavigation />
 
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 pt-24 md:pt-20">
         {/* Header Section */}
         <div className="mb-8">
           <h1 className="text-3xl font-bold mb-2">Content Management 📚</h1>
@@ -266,19 +284,20 @@ const ContentManagement = () => {
                 </SelectTrigger>
                 <SelectContent>
                   <SelectItem value="all">Semua Status</SelectItem>
-                  <SelectItem value="published">Published</SelectItem>
+                  <SelectItem value="approved">Approved</SelectItem>
                   <SelectItem value="draft">Draft</SelectItem>
                   <SelectItem value="pending">Pending</SelectItem>
                   <SelectItem value="active">Active</SelectItem>
-                  <SelectItem value="review">Review</SelectItem>
+                  <SelectItem value="inactive">Inactive</SelectItem>
+                  <SelectItem value="rejected">Rejected</SelectItem>
                 </SelectContent>
               </Select>
-              <Select value={filterSubtest} onValueChange={setFilterSubtest}>
+              <Select value={filterSubject} onValueChange={setFilterSubject}>
                 <SelectTrigger>
-                  <SelectValue placeholder="Subtest" />
+                  <SelectValue placeholder="Subject" />
                 </SelectTrigger>
                 <SelectContent>
-                  <SelectItem value="all">Semua Subtest</SelectItem>
+                  <SelectItem value="all">Semua Subject</SelectItem>
                   <SelectItem value="tps">TPS</SelectItem>
                   <SelectItem value="literasi">Literasi</SelectItem>
                   <SelectItem value="matematika">Matematika</SelectItem>
@@ -299,80 +318,10 @@ const ContentManagement = () => {
         </Card>
 
         <Tabs value={activeTab} onValueChange={setActiveTab}>
-          <TabsList className="grid w-full grid-cols-3">
-            <TabsTrigger value="materials">Materi</TabsTrigger>
+          <TabsList className="grid w-full grid-cols-2">
             <TabsTrigger value="questions">Soal</TabsTrigger>
-            <TabsTrigger value="tryouts">Try Out</TabsTrigger>
+            <TabsTrigger value="tryouts">Try Out Packages</TabsTrigger>
           </TabsList>
-
-          <TabsContent value="materials" className="mt-6">
-            <Card>
-              <CardHeader>
-                <div className="flex justify-between items-center">
-                  <CardTitle className="flex items-center gap-2">
-                    <BookOpen className="h-5 w-5" />
-                    Manajemen Materi
-                  </CardTitle>
-                  <Button>
-                    <Plus className="h-4 w-4 mr-1" />
-                    Tambah Materi
-                  </Button>
-                </div>
-              </CardHeader>
-              <CardContent>
-                <Table>
-                  <TableHeader>
-                    <TableRow>
-                      <TableHead>Judul</TableHead>
-                      <TableHead>Subtest</TableHead>
-                      <TableHead>Topik</TableHead>
-                      <TableHead>Type</TableHead>
-                      <TableHead>Status</TableHead>
-                      <TableHead>Author</TableHead>
-                      <TableHead>Views</TableHead>
-                      <TableHead>Downloads</TableHead>
-                      <TableHead>Aksi</TableHead>
-                    </TableRow>
-                  </TableHeader>
-                  <TableBody>
-                    {materials.map((material) => (
-                      <TableRow key={material.id}>
-                        <TableCell className="font-medium">{material.title}</TableCell>
-                        <TableCell>
-                          <Badge className={getSubtestColor(material.subtest)}>
-                            {material.subtest}
-                          </Badge>
-                        </TableCell>
-                        <TableCell>{material.topic}</TableCell>
-                        <TableCell>{material.type}</TableCell>
-                        <TableCell>
-                          <Badge className={getStatusColor(material.status)}>
-                            {material.status}
-                          </Badge>
-                        </TableCell>
-                        <TableCell>{material.author}</TableCell>
-                        <TableCell>{material.views.toLocaleString()}</TableCell>
-                        <TableCell>{material.downloads.toLocaleString()}</TableCell>
-                        <TableCell>
-                          <div className="flex gap-1">
-                            <Button variant="ghost" size="sm">
-                              <Eye className="h-4 w-4" />
-                            </Button>
-                            <Button variant="ghost" size="sm">
-                              <Edit className="h-4 w-4" />
-                            </Button>
-                            <Button variant="ghost" size="sm">
-                              <Trash2 className="h-4 w-4" />
-                            </Button>
-                          </div>
-                        </TableCell>
-                      </TableRow>
-                    ))}
-                  </TableBody>
-                </Table>
-              </CardContent>
-            </Card>
-          </TabsContent>
 
           <TabsContent value="questions" className="mt-6">
             <Card>
@@ -382,59 +331,66 @@ const ContentManagement = () => {
                     <FileText className="h-5 w-5" />
                     Manajemen Soal
                   </CardTitle>
-                  <Button>
-                    <Plus className="h-4 w-4 mr-1" />
-                    Tambah Soal
-                  </Button>
+                  <Dialog open={isQuestionDialogOpen} onOpenChange={setIsQuestionDialogOpen}>
+                    <DialogTrigger asChild>
+                      <Button>
+                        <Plus className="h-4 w-4 mr-1" />
+                        Tambah Soal
+                      </Button>
+                    </DialogTrigger>
+                    <DialogContent className="max-w-2xl">
+                      <DialogHeader>
+                        <DialogTitle>Tambah Soal Baru</DialogTitle>
+                      </DialogHeader>
+                      <QuestionForm onSubmit={handleCreateQuestion} onCancel={() => setIsQuestionDialogOpen(false)} />
+                    </DialogContent>
+                  </Dialog>
                 </div>
               </CardHeader>
               <CardContent>
                 <Table>
                   <TableHeader>
                     <TableRow>
-                      <TableHead>Soal</TableHead>
-                      <TableHead>Subtest</TableHead>
-                      <TableHead>Topik</TableHead>
-                      <TableHead>Tingkat</TableHead>
+                      <TableHead>Pertanyaan</TableHead>
+                      <TableHead>Subject</TableHead>
+                      <TableHead>Sub Topic</TableHead>
+                      <TableHead>Difficulty</TableHead>
                       <TableHead>Type</TableHead>
                       <TableHead>Status</TableHead>
-                      <TableHead>Usage</TableHead>
+                      <TableHead>Created</TableHead>
                       <TableHead>Aksi</TableHead>
                     </TableRow>
                   </TableHeader>
                   <TableBody>
-                    {questions.map((question) => (
+                    {filteredQuestions.map((question) => (
                       <TableRow key={question.id}>
                         <TableCell className="font-medium max-w-xs truncate">
-                          {question.question}
+                          {question.question_text}
                         </TableCell>
                         <TableCell>
-                          <Badge className={getSubtestColor(question.subtest)}>
-                            {question.subtest}
+                          <Badge className={getSubjectColor(question.subject)}>
+                            {question.subject}
                           </Badge>
                         </TableCell>
-                        <TableCell>{question.topic}</TableCell>
+                        <TableCell>{question.sub_topic || '-'}</TableCell>
                         <TableCell>
-                          <Badge className={getDifficultyColor(question.difficulty)}>
-                            {question.difficulty}
+                          <Badge className={getDifficultyColor(question.difficulty_level)}>
+                            {question.difficulty_level}
                           </Badge>
                         </TableCell>
-                        <TableCell>{question.type}</TableCell>
+                        <TableCell>{question.question_type}</TableCell>
                         <TableCell>
-                          <Badge className={getStatusColor(question.status)}>
-                            {question.status}
+                          <Badge className={getStatusColor(question.review_status)}>
+                            {question.review_status}
                           </Badge>
                         </TableCell>
-                        <TableCell>{question.usageCount}x</TableCell>
+                        <TableCell>{new Date(question.created_at).toLocaleDateString()}</TableCell>
                         <TableCell>
                           <div className="flex gap-1">
-                            <Button variant="ghost" size="sm">
-                              <Eye className="h-4 w-4" />
-                            </Button>
-                            <Button variant="ghost" size="sm">
+                            <Button variant="ghost" size="sm" onClick={() => setEditingQuestion(question)}>
                               <Edit className="h-4 w-4" />
                             </Button>
-                            <Button variant="ghost" size="sm">
+                            <Button variant="ghost" size="sm" onClick={() => handleDeleteQuestion(question.id)}>
                               <Trash2 className="h-4 w-4" />
                             </Button>
                           </div>
@@ -446,6 +402,86 @@ const ContentManagement = () => {
               </CardContent>
             </Card>
           </TabsContent>
+
+          <TabsContent value="tryouts" className="mt-6">
+            <Card>
+              <CardHeader>
+                <div className="flex justify-between items-center">
+                  <CardTitle className="flex items-center gap-2">
+                    <Target className="h-5 w-5" />
+                    Manajemen Tryout Packages
+                  </CardTitle>
+                  <Dialog open={isTryoutDialogOpen} onOpenChange={setIsTryoutDialogOpen}>
+                    <DialogTrigger asChild>
+                      <Button>
+                        <Plus className="h-4 w-4 mr-1" />
+                        Tambah Package
+                      </Button>
+                    </DialogTrigger>
+                    <DialogContent className="max-w-2xl">
+                      <DialogHeader>
+                        <DialogTitle>Tambah Tryout Package Baru</DialogTitle>
+                      </DialogHeader>
+                      <TryoutPackageForm onSubmit={handleCreateTryoutPackage} onCancel={() => setIsTryoutDialogOpen(false)} />
+                    </DialogContent>
+                  </Dialog>
+                </div>
+              </CardHeader>
+              <CardContent>
+                <Table>
+                  <TableHeader>
+                    <TableRow>
+                      <TableHead>Title</TableHead>
+                      <TableHead>Category</TableHead>
+                      <TableHead>Difficulty</TableHead>
+                      <TableHead>Questions</TableHead>
+                      <TableHead>Duration</TableHead>
+                      <TableHead>Price</TableHead>
+                      <TableHead>Status</TableHead>
+                      <TableHead>Created</TableHead>
+                      <TableHead>Aksi</TableHead>
+                    </TableRow>
+                  </TableHeader>
+                  <TableBody>
+                    {filteredTryoutPackages.map((pkg) => (
+                      <TableRow key={pkg.id}>
+                        <TableCell className="font-medium">{pkg.title}</TableCell>
+                        <TableCell>
+                          <Badge className="bg-blue-100 text-blue-800">
+                            {pkg.category}
+                          </Badge>
+                        </TableCell>
+                        <TableCell>
+                          <Badge className={getDifficultyColor(pkg.difficulty_level)}>
+                            {pkg.difficulty_level}
+                          </Badge>
+                        </TableCell>
+                        <TableCell>{pkg.total_questions}</TableCell>
+                        <TableCell>{pkg.duration_minutes} min</TableCell>
+                        <TableCell>Rp {pkg.price.toLocaleString()}</TableCell>
+                        <TableCell>
+                          <Badge className={getStatusColor(pkg.is_active ? 'active' : 'inactive')}>
+                            {pkg.is_active ? 'Active' : 'Inactive'}
+                          </Badge>
+                        </TableCell>
+                        <TableCell>{new Date(pkg.created_at).toLocaleDateString()}</TableCell>
+                        <TableCell>
+                          <div className="flex gap-1">
+                            <Button variant="ghost" size="sm" onClick={() => setEditingTryout(pkg)}>
+                              <Edit className="h-4 w-4" />
+                            </Button>
+                            <Button variant="ghost" size="sm" onClick={() => handleDeleteTryoutPackage(pkg.id)}>
+                              <Trash2 className="h-4 w-4" />
+                            </Button>
+                           </div>
+                         </TableCell>
+                       </TableRow>
+                     ))}
+                   </TableBody>
+                 </Table>
+               </CardContent>
+             </Card>
+           </TabsContent>
 
           <TabsContent value="tryouts" className="mt-6">
             <Card>
@@ -475,31 +511,31 @@ const ContentManagement = () => {
                     </TableRow>
                   </TableHeader>
                   <TableBody>
-                    {tryouts.map((tryout) => (
-                      <TableRow key={tryout.id}>
-                        <TableCell className="font-medium">{tryout.title}</TableCell>
+                    {filteredTryoutPackages.map((pkg) => (
+                      <TableRow key={pkg.id}>
+                        <TableCell className="font-medium">{pkg.title}</TableCell>
                         <TableCell>
                           <div className="flex items-center gap-1">
                             <Clock className="h-4 w-4" />
-                            {tryout.duration} menit
+                            {pkg.duration_minutes} menit
                           </div>
                         </TableCell>
-                        <TableCell>{tryout.totalQuestions} soal</TableCell>
+                        <TableCell>{pkg.total_questions} soal</TableCell>
                         <TableCell>
-                          <Badge className={getStatusColor(tryout.status)}>
-                            {tryout.status}
+                          <Badge className={getStatusColor(pkg.is_active ? 'active' : 'inactive')}>
+                            {pkg.is_active ? 'Active' : 'Inactive'}
                           </Badge>
                         </TableCell>
                         <TableCell>
                           <div className="flex items-center gap-1">
                             <Calendar className="h-4 w-4" />
-                            {tryout.scheduledDate}
+                            {new Date(pkg.created_at).toLocaleDateString()}
                           </div>
                         </TableCell>
                         <TableCell>
                           <div className="flex items-center gap-1">
                             <Users className="h-4 w-4" />
-                            {tryout.participants.toLocaleString()}
+                            Rp {pkg.price.toLocaleString()}
                           </div>
                         </TableCell>
                         <TableCell>
@@ -523,8 +559,352 @@ const ContentManagement = () => {
             </Card>
           </TabsContent>
         </Tabs>
+
+        {/* Question Dialog */}
+        <Dialog open={isQuestionDialogOpen} onOpenChange={setIsQuestionDialogOpen}>
+          <DialogContent className="max-w-2xl">
+            <DialogHeader>
+              <DialogTitle>{editingQuestion ? 'Edit Soal' : 'Tambah Soal Baru'}</DialogTitle>
+            </DialogHeader>
+            <QuestionForm 
+              question={editingQuestion} 
+              onSubmit={editingQuestion ? 
+                (data: QuestionFormData) => handleUpdateQuestion(editingQuestion.id, data) : 
+                handleCreateQuestion
+              } 
+              onCancel={() => {
+                setIsQuestionDialogOpen(false);
+                setEditingQuestion(null);
+              }} 
+            />
+          </DialogContent>
+        </Dialog>
+
+        {/* Tryout Package Dialog */}
+        <Dialog open={isTryoutDialogOpen} onOpenChange={setIsTryoutDialogOpen}>
+          <DialogContent className="max-w-2xl">
+            <DialogHeader>
+              <DialogTitle>{editingTryout ? 'Edit Tryout Package' : 'Tambah Tryout Package Baru'}</DialogTitle>
+            </DialogHeader>
+            <TryoutPackageForm 
+              tryoutPackage={editingTryout} 
+              onSubmit={editingTryout ? 
+                (data: TryoutPackageFormData) => handleUpdateTryoutPackage(editingTryout.id, data) : 
+                handleCreateTryoutPackage
+              } 
+              onCancel={() => {
+                setIsTryoutDialogOpen(false);
+                setEditingTryout(null);
+              }} 
+            />
+          </DialogContent>
+        </Dialog>
       </div>
     </div>
+  );
+}
+
+// Question Form Component
+interface QuestionFormProps {
+  question?: Question | null;
+  onSubmit: (data: QuestionFormData) => void;
+  onCancel: () => void;
+}
+
+function QuestionForm({ question, onSubmit, onCancel }: QuestionFormProps) {
+  const [formData, setFormData] = useState<QuestionFormData>({
+    question_text: question?.question_text || '',
+    subject: question?.subject || 'TPS',
+    sub_topic: question?.sub_topic || '',
+    difficulty_level: question?.difficulty_level || 'easy',
+    question_type: question?.question_type || 'multiple_choice',
+    options: question?.options || ['', '', '', '', ''],
+    correct_answer: question?.correct_answer || '',
+    explanation: question?.explanation || '',
+    time_limit_seconds: question?.time_limit_seconds || 120
+  });
+
+  const handleSubmit = (e: React.FormEvent) => {
+    e.preventDefault();
+    onSubmit(formData);
+  };
+
+  const updateOption = (index: number, value: string) => {
+    const newOptions = [...formData.options];
+    newOptions[index] = value;
+    setFormData({ ...formData, options: newOptions });
+  };
+
+  return (
+    <form onSubmit={handleSubmit} className="space-y-4">
+      <div>
+        <Label htmlFor="question_text">Pertanyaan</Label>
+        <Textarea
+          id="question_text"
+          value={formData.question_text}
+          onChange={(e) => setFormData({ ...formData, question_text: e.target.value })}
+          required
+          rows={3}
+        />
+      </div>
+
+      <div className="grid grid-cols-2 gap-4">
+        <div>
+          <Label htmlFor="subject">Subject</Label>
+          <Select value={formData.subject} onValueChange={(value) => setFormData({ ...formData, subject: value })}>
+            <SelectTrigger>
+              <SelectValue />
+            </SelectTrigger>
+            <SelectContent>
+              <SelectItem value="TPS">TPS</SelectItem>
+              <SelectItem value="Literasi">Literasi</SelectItem>
+              <SelectItem value="Numerasi">Numerasi</SelectItem>
+            </SelectContent>
+          </Select>
+        </div>
+
+        <div>
+          <Label htmlFor="sub_topic">Sub Topic</Label>
+          <Input
+            id="sub_topic"
+            value={formData.sub_topic}
+            onChange={(e) => setFormData({ ...formData, sub_topic: e.target.value })}
+          />
+        </div>
+      </div>
+
+      <div className="grid grid-cols-2 gap-4">
+        <div>
+          <Label htmlFor="difficulty_level">Difficulty</Label>
+          <Select value={formData.difficulty_level} onValueChange={(value) => setFormData({ ...formData, difficulty_level: value })}>
+            <SelectTrigger>
+              <SelectValue />
+            </SelectTrigger>
+            <SelectContent>
+              <SelectItem value="easy">Easy</SelectItem>
+              <SelectItem value="medium">Medium</SelectItem>
+              <SelectItem value="hard">Hard</SelectItem>
+            </SelectContent>
+          </Select>
+        </div>
+
+        <div>
+          <Label htmlFor="question_type">Type</Label>
+          <Select value={formData.question_type} onValueChange={(value) => setFormData({ ...formData, question_type: value })}>
+            <SelectTrigger>
+              <SelectValue />
+            </SelectTrigger>
+            <SelectContent>
+              <SelectItem value="multiple_choice">Multiple Choice</SelectItem>
+              <SelectItem value="essay">Essay</SelectItem>
+            </SelectContent>
+          </Select>
+        </div>
+      </div>
+
+      {formData.question_type === 'multiple_choice' && (
+        <div>
+          <Label>Options</Label>
+          <div className="space-y-2">
+            {formData.options.map((option: string, index: number) => (
+              <div key={index} className="flex items-center gap-2">
+                <span className="w-6 text-sm font-medium">{String.fromCharCode(65 + index)}.</span>
+                <Input
+                  value={option}
+                  onChange={(e) => updateOption(index, e.target.value)}
+                  placeholder={`Option ${String.fromCharCode(65 + index)}`}
+                />
+              </div>
+            ))}
+          </div>
+        </div>
+      )}
+
+      <div>
+        <Label htmlFor="correct_answer">Correct Answer</Label>
+        <Input
+          id="correct_answer"
+          value={formData.correct_answer}
+          onChange={(e) => setFormData({ ...formData, correct_answer: e.target.value })}
+          placeholder={formData.question_type === 'multiple_choice' ? 'A, B, C, D, or E' : 'Correct answer'}
+          required
+        />
+      </div>
+
+      <div>
+        <Label htmlFor="explanation">Explanation</Label>
+        <Textarea
+          id="explanation"
+          value={formData.explanation}
+          onChange={(e) => setFormData({ ...formData, explanation: e.target.value })}
+          rows={2}
+        />
+      </div>
+
+      <div>
+        <Label htmlFor="time_limit_seconds">Time Limit (seconds)</Label>
+        <Input
+          id="time_limit_seconds"
+          type="number"
+          value={formData.time_limit_seconds}
+          onChange={(e) => setFormData({ ...formData, time_limit_seconds: parseInt(e.target.value) || 120 })}
+          min={30}
+          max={600}
+        />
+      </div>
+
+      <div className="flex justify-end gap-2">
+        <Button type="button" variant="outline" onClick={onCancel}>
+          <X className="h-4 w-4 mr-1" />
+          Cancel
+        </Button>
+        <Button type="submit">
+          <Save className="h-4 w-4 mr-1" />
+          {question ? 'Update' : 'Create'}
+        </Button>
+      </div>
+    </form>
+  );
+}
+
+// Tryout Package Form Component
+interface TryoutPackageFormProps {
+  tryoutPackage?: TryoutPackage | null;
+  onSubmit: (data: TryoutPackageFormData) => void;
+  onCancel: () => void;
+}
+
+function TryoutPackageForm({ tryoutPackage, onSubmit, onCancel }: TryoutPackageFormProps) {
+  const [formData, setFormData] = useState<TryoutPackageFormData>({
+    title: tryoutPackage?.title || '',
+    description: tryoutPackage?.description || '',
+    category: tryoutPackage?.category || 'SNBT',
+    difficulty_level: tryoutPackage?.difficulty_level || 'medium',
+    duration_minutes: tryoutPackage?.duration_minutes || 180,
+    total_questions: tryoutPackage?.total_questions || 0,
+    price: tryoutPackage?.price || 0,
+    is_active: tryoutPackage?.is_active ?? true
+  });
+
+  const handleSubmit = (e: React.FormEvent) => {
+    e.preventDefault();
+    onSubmit(formData);
+  };
+
+  return (
+    <form onSubmit={handleSubmit} className="space-y-4">
+      <div>
+        <Label htmlFor="title">Title</Label>
+        <Input
+          id="title"
+          value={formData.title}
+          onChange={(e) => setFormData({ ...formData, title: e.target.value })}
+          required
+        />
+      </div>
+
+      <div>
+        <Label htmlFor="description">Description</Label>
+        <Textarea
+          id="description"
+          value={formData.description}
+          onChange={(e) => setFormData({ ...formData, description: e.target.value })}
+          rows={3}
+        />
+      </div>
+
+      <div className="grid grid-cols-2 gap-4">
+        <div>
+          <Label htmlFor="category">Category</Label>
+          <Select value={formData.category} onValueChange={(value) => setFormData({ ...formData, category: value })}>
+            <SelectTrigger>
+              <SelectValue />
+            </SelectTrigger>
+            <SelectContent>
+              <SelectItem value="SNBT">SNBT</SelectItem>
+              <SelectItem value="UTBK">UTBK</SelectItem>
+              <SelectItem value="Simulasi">Simulasi</SelectItem>
+            </SelectContent>
+          </Select>
+        </div>
+
+        <div>
+          <Label htmlFor="difficulty_level">Difficulty</Label>
+          <Select value={formData.difficulty_level} onValueChange={(value) => setFormData({ ...formData, difficulty_level: value })}>
+            <SelectTrigger>
+              <SelectValue />
+            </SelectTrigger>
+            <SelectContent>
+              <SelectItem value="easy">Easy</SelectItem>
+              <SelectItem value="medium">Medium</SelectItem>
+              <SelectItem value="hard">Hard</SelectItem>
+            </SelectContent>
+          </Select>
+        </div>
+      </div>
+
+      <div className="grid grid-cols-3 gap-4">
+        <div>
+          <Label htmlFor="duration_minutes">Duration (minutes)</Label>
+          <Input
+            id="duration_minutes"
+            type="number"
+            value={formData.duration_minutes}
+            onChange={(e) => setFormData({ ...formData, duration_minutes: parseInt(e.target.value) || 180 })}
+            min={30}
+            max={300}
+            required
+          />
+        </div>
+
+        <div>
+          <Label htmlFor="total_questions">Total Questions</Label>
+          <Input
+            id="total_questions"
+            type="number"
+            value={formData.total_questions}
+            onChange={(e) => setFormData({ ...formData, total_questions: parseInt(e.target.value) || 0 })}
+            min={1}
+            max={200}
+            required
+          />
+        </div>
+
+        <div>
+          <Label htmlFor="price">Price (Rp)</Label>
+          <Input
+            id="price"
+            type="number"
+            value={formData.price}
+            onChange={(e) => setFormData({ ...formData, price: parseInt(e.target.value) || 0 })}
+            min={0}
+            required
+          />
+        </div>
+      </div>
+
+      <div className="flex items-center space-x-2">
+        <input
+          type="checkbox"
+          id="is_active"
+          checked={formData.is_active}
+          onChange={(e) => setFormData({ ...formData, is_active: e.target.checked })}
+          className="rounded"
+        />
+        <Label htmlFor="is_active">Active</Label>
+      </div>
+
+      <div className="flex justify-end gap-2">
+        <Button type="button" variant="outline" onClick={onCancel}>
+          <X className="h-4 w-4 mr-1" />
+          Cancel
+        </Button>
+        <Button type="submit">
+          <Save className="h-4 w-4 mr-1" />
+          {tryoutPackage ? 'Update' : 'Create'}
+        </Button>
+      </div>
+    </form>
   );
 };
 

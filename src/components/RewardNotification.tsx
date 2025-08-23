@@ -12,7 +12,6 @@ import {
   Medal, 
   Award,
   X,
-  Coins,
   Zap
 } from 'lucide-react';
 

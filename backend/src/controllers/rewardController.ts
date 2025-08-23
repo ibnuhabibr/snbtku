@@ -19,8 +19,8 @@ export async function getDailyCheckInStatus(request: AuthenticatedRequest, reply
     
     const user = await db.select({
       id: users.id,
-      lastDailyCheckIn: users.lastDailyCheckIn,
-      dailyCheckInStreak: users.dailyCheckInStreak
+      lastDailyCheckIn: users.last_check_in,
+      dailyCheckInStreak: users.daily_streak
     })
     .from(users)
     .where(eq(users.id, userId))
@@ -36,12 +36,49 @@ export async function getDailyCheckInStatus(request: AuthenticatedRequest, reply
     
     // Calculate next claim time (next midnight)
     const nextClaimAt = canClaim ? now : addDays(startOfDay(now), 1);
+    
+    // Calculate weekly progress
+    const weekStart = startOfDay(now);
+    weekStart.setDate(weekStart.getDate() - weekStart.getDay()); // Start of week (Sunday)
+    
+    let currentDay = 1;
+    if (lastCheckIn) {
+      const daysSinceWeekStart = differenceInDays(now, weekStart);
+      currentDay = Math.min(daysSinceWeekStart + 1, 7);
+    }
+    
+    // Weekly rewards structure (escalating rewards)
+    const weeklyRewards = [
+      { day: 1, coins: 100, xp: 50, claimed: false, unlocked: true },
+      { day: 2, coins: 150, xp: 75, claimed: false, unlocked: currentDay >= 2 },
+      { day: 3, coins: 200, xp: 100, claimed: false, unlocked: currentDay >= 3 },
+      { day: 4, coins: 250, xp: 125, claimed: false, unlocked: currentDay >= 4 },
+      { day: 5, coins: 300, xp: 150, claimed: false, unlocked: currentDay >= 5 },
+      { day: 6, coins: 400, xp: 200, claimed: false, unlocked: currentDay >= 6 },
+      { day: 7, coins: 500, xp: 300, claimed: false, unlocked: currentDay >= 7 }, // Bonus weekend
+    ];
+    
+    // Mark claimed days based on check-in history
+    if (lastCheckIn) {
+      const daysSinceLastCheckIn = differenceInDays(now, lastCheckIn);
+      if (daysSinceLastCheckIn === 0) {
+        // Already claimed today
+        const todayIndex = currentDay - 1;
+        if (todayIndex >= 0 && todayIndex < weeklyRewards.length) {
+          weeklyRewards[todayIndex].claimed = true;
+        }
+      }
+    }
 
     return reply.send({
       canClaim,
       currentStreak: user[0].dailyCheckInStreak || 0,
       lastCheckIn: lastCheckIn?.toISOString(),
-      nextClaimAt: nextClaimAt.toISOString()
+      nextClaimAt: nextClaimAt.toISOString(),
+      weeklyProgress: {
+        currentDay,
+        weeklyRewards
+      }
     });
   } catch (error) {
     console.error('Error getting daily check-in status:', error);
@@ -87,13 +124,27 @@ export async function claimDailyReward(request: AuthenticatedRequest, reply: Fas
     const currentStreak = user[0].dailyCheckInStreak || 0;
     const newStreak = isConsecutive ? currentStreak + 1 : 1;
     
-    // Base reward calculation
-    const baseReward = { coins: 50, xp: 25 };
-    const streakBonus = Math.min(newStreak * 10, 100); // Max 100 bonus
+    // Calculate current day in week (1-7)
+    const weekStart = startOfDay(now);
+    weekStart.setDate(weekStart.getDate() - weekStart.getDay()); // Start of week (Sunday)
+    const daysSinceWeekStart = differenceInDays(now, weekStart);
+    const currentDay = Math.min(daysSinceWeekStart + 1, 7);
     
+    // Weekly rewards structure (escalating rewards)
+    const weeklyRewards = [
+      { day: 1, coins: 100, xp: 50 },
+      { day: 2, coins: 150, xp: 75 },
+      { day: 3, coins: 200, xp: 100 },
+      { day: 4, coins: 250, xp: 125 },
+      { day: 5, coins: 300, xp: 150 },
+      { day: 6, coins: 400, xp: 200 },
+      { day: 7, coins: 500, xp: 300 }, // Bonus weekend
+    ];
+    
+    const todayReward = weeklyRewards[currentDay - 1] || weeklyRewards[0];
     const totalReward = {
-      coins: baseReward.coins + streakBonus,
-      xp: baseReward.xp + Math.floor(streakBonus / 2)
+      coins: todayReward.coins,
+      xp: todayReward.xp
     };
 
     // Update user data in transaction
@@ -131,6 +182,7 @@ export async function claimDailyReward(request: AuthenticatedRequest, reply: Fas
       success: true,
       reward: totalReward,
       streak: newStreak,
+      currentDay,
       nextClaimAt: nextClaimAt.toISOString(),
       message: `Daily reward claimed! +${totalReward.coins} coins, +${totalReward.xp} XP${newStreak > 1 ? ` (${newStreak} day streak!)` : ''}`
     });

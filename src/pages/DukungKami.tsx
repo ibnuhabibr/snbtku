@@ -1,4 +1,4 @@
-import React from 'react';
+// import React from 'react'; // Removed unused import
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Heart, Coffee, Gift, Users, Star, Zap } from 'lucide-react';

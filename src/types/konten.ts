@@ -219,15 +219,4 @@ export interface IKonfigurasiSistem {
   shuffle_pilihan: boolean; // acak urutan pilihan jawaban
 }
 
-export default {
-  TSubtestSNBT,
-  ISoal,
-  IMateri,
-  IStudyJourney,
-  ITryoutBlock,
-  ITryoutPackageSNBT,
-  IHasilTryoutBlock,
-  IHasilTryoutLengkap,
-  ISesiTryout,
-  IKonfigurasiSistem
-};
+// Types are exported individually above, no need for default export

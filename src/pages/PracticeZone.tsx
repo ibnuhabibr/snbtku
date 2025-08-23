@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useMemo } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
@@ -11,17 +11,9 @@ import {
   Globe, 
   Languages, 
   PenTool,
-  ChevronDown,
-  ChevronUp,
-  ChevronRight,
   Play,
   Clock,
-  Target,
-  Star,
-  CheckCircle,
-  TrendingUp,
-  Minimize2,
-  Maximize2
+  Target
 } from 'lucide-react';
 import { Link } from 'react-router-dom';
 import Navigation from '@/components/Navigation';
@@ -604,21 +596,15 @@ const subtestSections: SubtestSection[] = [
 ];
 
 const PracticeZone: React.FC = () => {
-  const [expandedSections, setExpandedSections] = useState<string[]>([]);
   const [selectedCategory, setSelectedCategory] = useState<'All' | 'TPS' | 'Literasi'>('All');
-  const [collapsedTopics, setCollapsedTopics] = useState<string[]>([]);
 
-  const toggleSection = (sectionId: string) => {
-    setExpandedSections(prev => 
-      prev.includes(sectionId) 
-        ? prev.filter(id => id !== sectionId)
-        : [...prev, sectionId]
-    );
-  };
 
-  const filteredSections = subtestSections.filter(section => 
-    selectedCategory === 'All' || section.category === selectedCategory
-  );
+
+  const filteredSections = useMemo(() => {
+    return selectedCategory === 'All' 
+      ? subtestSections 
+      : subtestSections.filter(section => section.category === selectedCategory);
+  }, [selectedCategory]);
 
   const getDifficultyColor = (difficulty: string) => {
     switch (difficulty) {
@@ -629,25 +615,13 @@ const PracticeZone: React.FC = () => {
     }
   };
 
-  const totalQuestions = subtestSections.reduce((total, section) => 
-    total + section.topics.reduce((sectionTotal, topic) => sectionTotal + topic.questionCount, 0), 0
-  );
-
-  const completedTopics = subtestSections.reduce((total, section) => 
-    total + section.topics.filter(topic => topic.completionRate > 0).length, 0
-  );
-
-  const totalTopics = subtestSections.reduce((total, section) => total + section.topics.length, 0);
-
-  const averageCompletion = subtestSections.reduce((total, section) => 
-    total + section.topics.reduce((sectionTotal, topic) => sectionTotal + topic.completionRate, 0), 0
-  ) / totalTopics;
+  // Removed unused variables: totalQuestions, completedTopics, totalTopics, averageCompletion
 
   return (
-    <div className="min-h-screen bg-gray-50">
+    <div className="min-h-screen bg-gray-50 no-blink">
       <Navigation />
       
-      <div className="container max-w-7xl mx-auto px-4 py-8">
+      <div className="container max-w-7xl mx-auto px-4 py-8 pt-20 md:pt-24">
         {/* Header */}
         <div className="mb-12">
           <div className="flex items-center mb-6">
@@ -662,59 +636,10 @@ const PracticeZone: React.FC = () => {
             </div>
           </div>
 
-          {/* Statistics Overview */}
-          <div className="grid grid-cols-1 md:grid-cols-4 gap-6 mb-8">
-            <Card>
-              <CardContent className="p-6">
-                <div className="flex items-center justify-between">
-                  <div>
-                    <p className="text-sm font-medium text-muted-foreground">Total Soal</p>
-                    <p className="text-2xl font-bold text-gray-900">160</p>
-                  </div>
-                  <BookOpen className="h-8 w-8 text-blue-500" />
-                </div>
-              </CardContent>
-            </Card>
 
-            <Card>
-              <CardContent className="p-6">
-                <div className="flex items-center justify-between">
-                  <div>
-                    <p className="text-sm font-medium text-muted-foreground">Subtes Dikerjakan</p>
-                    <p className="text-2xl font-bold text-gray-900">4/7</p>
-                  </div>
-                  <CheckCircle className="h-8 w-8 text-green-500" />
-                </div>
-              </CardContent>
-            </Card>
-
-            <Card>
-              <CardContent className="p-6">
-                <div className="flex items-center justify-between">
-                  <div>
-                    <p className="text-sm font-medium text-muted-foreground">Rata-rata Progress</p>
-                    <p className="text-2xl font-bold text-gray-900">68%</p>
-                  </div>
-                  <TrendingUp className="h-8 w-8 text-purple-500" />
-                </div>
-              </CardContent>
-            </Card>
-
-            <Card>
-              <CardContent className="p-6">
-                <div className="flex items-center justify-between">
-                  <div>
-                    <p className="text-sm font-medium text-muted-foreground">Subtes Tersedia</p>
-                    <p className="text-2xl font-bold text-gray-900">7</p>
-                  </div>
-                  <Star className="h-8 w-8 text-yellow-500" />
-                </div>
-              </CardContent>
-            </Card>
-          </div>
 
           {/* Category Filter */}
-          <div className="flex gap-4 mb-8">
+          <div className="flex gap-4 mb-8 category-transition">
             {(['All', 'TPS', 'Literasi'] as const).map((category) => (
               <Button
                 key={category}
@@ -729,17 +654,13 @@ const PracticeZone: React.FC = () => {
         </div>
 
         {/* Subtest Sections */}
-        <div className="space-y-6">
+        <div className="space-y-6 min-h-[600px] dynamic-content category-transition">
           {filteredSections.map((section) => {
-            const isExpanded = expandedSections.includes(section.id);
             const sectionProgress = section.topics.reduce((total, topic) => total + topic.completionRate, 0) / section.topics.length;
             
             return (
-              <Card key={section.id} className={`${section.borderColor} border-2 transition-all duration-200 hover:shadow-lg`}>
-                <CardHeader 
-                  className={`${section.bgColor} cursor-pointer transition-colors duration-200 hover:opacity-80`}
-                  onClick={() => toggleSection(section.id)}
-                >
+              <Card key={section.id} className={`${section.borderColor} border-2 transition-all duration-300 hover:shadow-lg transform-gpu`}>
+                <CardHeader className={`${section.bgColor}`}>
                   <div className="flex items-center justify-between">
                     <div className="flex items-center space-x-4">
                       <div className={`p-3 bg-white rounded-lg ${section.color}`}>
@@ -759,7 +680,7 @@ const PracticeZone: React.FC = () => {
                       </div>
                     </div>
                     <div className="flex items-center space-x-4">
-                      <div className="text-right">
+                      <div className="text-right hidden md:block">
                         <div className="text-sm text-muted-foreground mb-1">Progress</div>
                         <div className="flex items-center gap-2">
                           <Progress value={sectionProgress} className="w-20" />
@@ -770,118 +691,77 @@ const PracticeZone: React.FC = () => {
                         <Button 
                           size="sm" 
                           className="px-4 py-2"
-                          onClick={(e) => {
-                            e.stopPropagation();
-                          }}
                         >
                           <Play className="h-4 w-4 mr-1" />
                           Mulai
                         </Button>
                       </Link>
-                      {isExpanded ? (
-                        <ChevronUp className="h-5 w-5 text-gray-500" />
-                      ) : (
-                        <ChevronDown className="h-5 w-5 text-gray-500" />
-                      )}
                     </div>
+                  </div>
+                  
+                  {/* Mobile progress bar */}
+                  <div className="mt-4 md:hidden">
+                    <div className="flex items-center justify-between text-sm mb-2">
+                      <span className="text-muted-foreground">Progress</span>
+                      <span className="font-medium">{Math.round(sectionProgress)}%</span>
+                    </div>
+                    <Progress value={sectionProgress} className="h-2" />
                   </div>
                 </CardHeader>
 
-                {isExpanded && (
-                  <CardContent className="p-6">
-                    <div className="relative">
-                      {/* Mobile minimize/maximize button */}
-                      <div className="flex justify-end mb-4 md:hidden">
-                        <Button
-                          variant="ghost"
-                          size="sm"
-                          onClick={() => {
-                            if (collapsedTopics.includes(section.id)) {
-                              setCollapsedTopics(prev => prev.filter(id => id !== section.id));
-                            } else {
-                              setCollapsedTopics(prev => [...prev, section.id]);
-                            }
-                          }}
-                          className="text-gray-500 hover:text-gray-700"
-                        >
-                          {collapsedTopics.includes(section.id) ? (
-                            <>
-                              <Maximize2 className="h-4 w-4 mr-1" />
-                              <span className="text-xs">Perluas</span>
-                            </>
-                          ) : (
-                            <>
-                              <Minimize2 className="h-4 w-4 mr-1" />
-                              <span className="text-xs">Perkecil</span>
-                            </>
-                          )}
-                        </Button>
-                      </div>
-                      
-                      {/* Horizontal scroll container */}
-                      <div className={`flex gap-4 overflow-x-auto pb-4 scrollbar-thin scrollbar-thumb-gray-300 scrollbar-track-gray-100 transition-all duration-300 ${collapsedTopics.includes(section.id) ? 'md:flex hidden' : 'flex'}`}>
-                        {section.topics.map((topic) => (
-                          <Card key={topic.id} className="flex-shrink-0 w-72 border border-gray-200 hover:border-gray-300 transition-all duration-200 hover:shadow-md">
-                            <CardContent className="p-4">
-                              <div className="flex items-start justify-between mb-3">
-                                <h4 className="font-semibold text-gray-900 text-sm line-clamp-2">{topic.title}</h4>
-                                <Badge className={getDifficultyColor(topic.difficulty)} variant="secondary">
-                                  {topic.difficulty}
-                                </Badge>
-                              </div>
-                              
-                              <p className="text-xs text-muted-foreground mb-3 line-clamp-2">{topic.description}</p>
-                              
-                              <div className="space-y-2 mb-4">
-                                <div className="flex items-center justify-between text-xs">
-                                  <span className="text-muted-foreground">Progress</span>
-                                  <span className="font-medium">{topic.completionRate}%</span>
-                                </div>
-                                <Progress value={topic.completionRate} className="h-2" />
-                                
-                                <div className="flex items-center gap-4 text-xs text-muted-foreground">
-                                  <div className="flex items-center gap-1">
-                                    <BookOpen className="h-3 w-3" />
-                                    {topic.questionCount} soal
-                                  </div>
-                                  <div className="flex items-center gap-1">
-                                    <Clock className="h-3 w-3" />
-                                    {topic.estimatedTime}
-                                  </div>
-                                </div>
-                                
-                                {topic.lastAttempt && (
-                                  <div className="text-xs text-muted-foreground">
-                                    Terakhir: {topic.lastAttempt}
-                                  </div>
-                                )}
-                              </div>
-                              
-                              <Button 
-                                size="sm" 
-                                className="w-full"
-                                variant={topic.completionRate > 0 ? "outline" : "default"}
-                              >
-                                <Play className="h-3 w-3 mr-1" />
-                                {topic.completionRate > 0 ? 'Lanjutkan' : 'Mulai'}
-                              </Button>
-                            </CardContent>
-                          </Card>
-                        ))}
-                      </div>
-                      
-                      {/* Scroll indicator for mobile */}
-                      {section.topics.length > 3 && !collapsedTopics.includes(section.id) && (
-                        <div className="flex justify-center mt-2 md:hidden">
-                          <div className="text-xs text-muted-foreground flex items-center gap-1">
-                            <span>Geser untuk melihat lebih banyak</span>
-                            <ChevronRight className="h-3 w-3" />
+                <CardContent className="p-6">
+                  {/* Grid layout for mobile, horizontal scroll for desktop */}
+                  <div className="grid grid-cols-1 sm:grid-cols-2 lg:flex lg:gap-4 lg:overflow-x-auto lg:pb-4 gap-4 scrollbar-thin scrollbar-thumb-gray-300 scrollbar-track-gray-100">
+                    {section.topics.map((topic) => (
+                      <Card key={topic.id} className="lg:flex-shrink-0 lg:w-72 border border-gray-200 hover:border-gray-300 transition-all duration-200 hover:shadow-md">
+                        <CardContent className="p-4">
+                          <div className="flex items-start justify-between mb-3">
+                            <h4 className="font-semibold text-gray-900 text-sm line-clamp-2">{topic.title}</h4>
+                            <Badge className={getDifficultyColor(topic.difficulty)} variant="secondary">
+                              {topic.difficulty}
+                            </Badge>
                           </div>
-                        </div>
-                      )}
-                    </div>
-                  </CardContent>
-                )}
+                          
+                          <p className="text-xs text-muted-foreground mb-3 line-clamp-2">{topic.description}</p>
+                          
+                          <div className="space-y-2 mb-4">
+                            <div className="flex items-center justify-between text-xs">
+                              <span className="text-muted-foreground">Progress</span>
+                              <span className="font-medium">{topic.completionRate}%</span>
+                            </div>
+                            <Progress value={topic.completionRate} className="h-2" />
+                            
+                            <div className="flex items-center gap-4 text-xs text-muted-foreground">
+                              <div className="flex items-center gap-1">
+                                <BookOpen className="h-3 w-3" />
+                                {topic.questionCount} soal
+                              </div>
+                              <div className="flex items-center gap-1">
+                                <Clock className="h-3 w-3" />
+                                {topic.estimatedTime}
+                              </div>
+                            </div>
+                            
+                            {topic.lastAttempt && (
+                              <div className="text-xs text-muted-foreground">
+                                Terakhir: {topic.lastAttempt}
+                              </div>
+                            )}
+                          </div>
+                          
+                          <Button 
+                            size="sm" 
+                            className="w-full"
+                            variant={topic.completionRate > 0 ? "outline" : "default"}
+                          >
+                            <Play className="h-3 w-3 mr-1" />
+                            {topic.completionRate > 0 ? 'Lanjutkan' : 'Mulai'}
+                          </Button>
+                        </CardContent>
+                      </Card>
+                    ))}
+                  </div>
+                </CardContent>
               </Card>
             );
           })}

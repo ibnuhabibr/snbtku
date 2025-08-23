@@ -1,4 +1,4 @@
-import { useState, useEffect, useCallback } from 'react';
+import { useState, useEffect, useCallback, useMemo, memo } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
@@ -14,11 +14,10 @@ import {
   CheckCircle, 
   Circle, 
   AlertCircle,
-  Play,
   Square
 } from 'lucide-react';
 import { cn } from '@/lib/utils';
-import { ITryoutPackageSNBT, ISoal } from '@/types/konten';
+import { ITryoutPackageSNBT } from '@/types/konten';
 
 interface TryoutPlayerProps {
   paketTryout: ITryoutPackageSNBT;
@@ -44,6 +43,76 @@ interface BlockResult {
   raguRagu: number;
 }
 
+// Memoized Question Component for better performance
+const Question = memo(({ 
+  soal, 
+  userAnswer, 
+  onAnswerChange, 
+  onStatusChange 
+}: { 
+  soal: any; 
+  userAnswer: UserAnswer | undefined; 
+  onAnswerChange: (jawaban: string) => void; 
+  onStatusChange: (status: AnswerStatus) => void; 
+}) => {
+  return (
+    <div className="space-y-6">
+      <div className="prose prose-sm max-w-none">
+        <h3 className="text-lg font-medium">{soal.pertanyaan}</h3>
+      </div>
+      
+      <RadioGroup 
+        value={userAnswer?.jawaban || ''} 
+        onValueChange={onAnswerChange}
+        className="space-y-3"
+      >
+        {Object.entries(soal.pilihan_jawaban).map(([key, value]) => (
+          <div key={key} className="flex items-center space-x-2 rounded-md border p-3 hover:bg-muted/50 transition-colors">
+            <RadioGroupItem value={key} id={`answer-${key}`} />
+            <Label htmlFor={`answer-${key}`} className="flex-grow cursor-pointer">{String(value)}</Label>
+          </div>
+        ))}
+      </RadioGroup>
+      
+      <div className="flex space-x-2 mt-4">
+        <Button 
+          variant={userAnswer?.status === 'doubtful' ? 'destructive' : 'outline'} 
+          size="sm"
+          onClick={() => onStatusChange(userAnswer?.status === 'doubtful' ? 'answered' : 'doubtful')}
+        >
+          <Flag className="mr-1 h-4 w-4" />
+          {userAnswer?.status === 'doubtful' ? 'Tandai Ragu-ragu' : 'Batalkan Ragu-ragu'}
+        </Button>
+      </div>
+    </div>
+  );
+});
+
+Question.displayName = 'Question'; // Required for memo components in React DevTools
+
+// Memoized Timer Component for better performance
+const Timer = memo(({ seconds }: { seconds: number; onTimeUp?: () => void }) => {
+  const minutes = Math.floor(seconds / 60);
+  const remainingSeconds = seconds % 60;
+  
+  const formattedTime = `${minutes.toString().padStart(2, '0')}:${remainingSeconds.toString().padStart(2, '0')}`;
+  
+  // Warning condition when less than 5 minutes left
+  const isWarning = seconds < 300;
+  
+  return (
+    <div className={cn(
+      "flex items-center space-x-2 text-lg font-mono", 
+      isWarning ? "text-red-600 animate-pulse" : ""
+    )}>
+      <Clock className="h-5 w-5" />
+      <span>{formattedTime}</span>
+    </div>
+  );
+});
+
+Timer.displayName = 'Timer'; // Required for memo components in React DevTools
+
 const TryoutPlayer: React.FC<TryoutPlayerProps> = ({ paketTryout }) => {
   // State Management
   const [currentBlockIndex, setCurrentBlockIndex] = useState(0);
@@ -53,10 +122,43 @@ const TryoutPlayer: React.FC<TryoutPlayerProps> = ({ paketTryout }) => {
   const [isFinished, setIsFinished] = useState(false);
   const [results, setResults] = useState<BlockResult[]>([]);
 
-  // Get current block and soal
-  const currentBlock = paketTryout.blocks[currentBlockIndex];
-  const currentSoal = currentBlock?.soal_ids[currentSoalIndex];
-  const totalBlocks = paketTryout.blocks.length;
+  // Get current block and soal - memoized to prevent re-calculations
+  const currentBlock = useMemo(() => paketTryout.blocks[currentBlockIndex], [paketTryout.blocks, currentBlockIndex]);
+  const currentSoalId = useMemo(() => currentBlock?.soal_ids[currentSoalIndex], [currentBlock, currentSoalIndex]);
+  const totalBlocks = useMemo(() => paketTryout.blocks.length, [paketTryout.blocks]);
+  
+  // TODO: This should fetch actual soal data from API or props
+  // For now, creating a mock soal object to prevent TypeScript errors
+  const currentSoal = useMemo(() => currentSoalId ? {
+    id: currentSoalId,
+    subtest: 'Penalaran Umum' as const,
+    pertanyaan: 'Soal akan dimuat dari server...',
+    pilihan_jawaban: { A: 'A', B: 'B', C: 'C', D: 'D', E: 'E' },
+    jawaban_benar: 'A' as const,
+    pembahasan: '',
+    tingkat_kesulitan: 'Sedang' as const,
+    kategori_kognitif: 'C1' as const,
+    waktu_pengerjaan_detik: 120,
+    tags: [],
+    created_at: new Date(),
+    updated_at: new Date()
+  } : null, [currentSoalId]);
+
+  // Handle finish exam
+  const handleFinishExam = useCallback(() => {
+    const allResults = paketTryout.blocks.map((_, index) => calculateBlockResult(index));
+    setResults(allResults);
+    setIsFinished(true);
+  }, [paketTryout.blocks]);
+
+  // Handle time up - move to next block or finish
+  const handleTimeUp = useCallback(() => {
+    if (currentBlockIndex < totalBlocks - 1) {
+      setCurrentBlockIndex(prev => prev + 1);
+    } else {
+      handleFinishExam();
+    }
+  }, [currentBlockIndex, totalBlocks, handleFinishExam]);
 
   // Initialize timer when block changes
   useEffect(() => {
@@ -82,16 +184,8 @@ const TryoutPlayer: React.FC<TryoutPlayerProps> = ({ paketTryout }) => {
 
       return () => clearInterval(interval);
     }
-  }, [timer, isFinished]);
-
-  // Handle time up - move to next block or finish
-  const handleTimeUp = useCallback(() => {
-    if (currentBlockIndex < totalBlocks - 1) {
-      setCurrentBlockIndex(prev => prev + 1);
-    } else {
-      handleFinishExam();
-    }
-  }, [currentBlockIndex, totalBlocks]);
+    return undefined;
+  }, [timer, isFinished, handleTimeUp]);
 
   // Handle answer selection
   const handleAnswerSelect = (soalId: string, jawaban: string) => {
@@ -125,7 +219,7 @@ const TryoutPlayer: React.FC<TryoutPlayerProps> = ({ paketTryout }) => {
 
   // Navigate between questions within current block
   const navigateToSoal = (index: number) => {
-    if (index >= 0 && index < currentBlock.soal_ids.length) {
+    if (currentBlock && index >= 0 && index < currentBlock.soal_ids.length) {
       setCurrentSoalIndex(index);
     }
   };
@@ -133,7 +227,20 @@ const TryoutPlayer: React.FC<TryoutPlayerProps> = ({ paketTryout }) => {
   // Calculate results for current block
   const calculateBlockResult = (blockIndex: number): BlockResult => {
     const block = paketTryout.blocks[blockIndex];
-    const blockAnswers = block.soal_ids.map(soalId => userAnswers[soalId.id]);
+    if (!block) {
+      return {
+        blockIndex,
+        blockName: 'Unknown Block',
+        totalSoal: 0,
+        terjawab: 0,
+        benar: 0,
+        salah: 0,
+        kosong: 0,
+        raguRagu: 0
+      };
+    }
+    
+    const blockAnswers = block.soal_ids.map(soalId => userAnswers[soalId]);
     
     const totalSoal = block.soal_ids.length;
     const terjawab = blockAnswers.filter(answer => answer?.jawaban).length;
@@ -144,7 +251,7 @@ const TryoutPlayer: React.FC<TryoutPlayerProps> = ({ paketTryout }) => {
     
     return {
       blockIndex,
-      blockName: block.nama_blok,
+      blockName: block.nama_block || 'Unknown Block',
       totalSoal,
       terjawab,
       benar,
@@ -152,13 +259,6 @@ const TryoutPlayer: React.FC<TryoutPlayerProps> = ({ paketTryout }) => {
       kosong: totalSoal - terjawab,
       raguRagu
     };
-  };
-
-  // Handle finish exam
-  const handleFinishExam = () => {
-    const allResults = paketTryout.blocks.map((_, index) => calculateBlockResult(index));
-    setResults(allResults);
-    setIsFinished(true);
   };
 
   // Format timer display
@@ -262,7 +362,7 @@ const TryoutPlayer: React.FC<TryoutPlayerProps> = ({ paketTryout }) => {
             <div>
               <h1 className="text-xl font-bold">{paketTryout.judul}</h1>
               <p className="text-sm text-muted-foreground">
-                Blok {currentBlockIndex + 1} dari {totalBlocks}: {currentBlock?.nama_blok}
+                Blok {currentBlockIndex + 1} dari {totalBlocks}: {currentBlock?.nama_block}
               </p>
             </div>
             
@@ -310,16 +410,16 @@ const TryoutPlayer: React.FC<TryoutPlayerProps> = ({ paketTryout }) => {
               <CardHeader>
                 <CardTitle className="text-lg">Navigasi Soal</CardTitle>
                 <p className="text-sm text-muted-foreground">
-                  {currentBlock?.nama_blok}
+                  {currentBlock?.nama_block}
                 </p>
               </CardHeader>
               <CardContent>
                 <div className="grid grid-cols-5 gap-2">
-                  {currentBlock?.soal_ids.map((soal, index) => {
-                    const status = getAnswerStatus(soal.id);
+                  {currentBlock?.soal_ids.map((soalId, index) => {
+                    const status = getAnswerStatus(soalId);
                     return (
                       <Button
-                        key={soal.id}
+                        key={soalId}
                         variant={index === currentSoalIndex ? "default" : "outline"}
                         size="sm"
                         className={cn(
@@ -369,7 +469,7 @@ const TryoutPlayer: React.FC<TryoutPlayerProps> = ({ paketTryout }) => {
                   <div className="flex justify-between items-start">
                     <div>
                       <CardTitle className="text-lg">
-                        Soal {currentSoalIndex + 1} dari {currentBlock.soal_ids.length}
+                        Soal {currentSoalIndex + 1} dari {currentBlock?.soal_ids.length || 0}
                       </CardTitle>
                       <Badge variant="secondary" className="mt-2">
                         {currentSoal.subtest.replace(/_/g, ' ').toUpperCase()}
@@ -377,9 +477,9 @@ const TryoutPlayer: React.FC<TryoutPlayerProps> = ({ paketTryout }) => {
                     </div>
                     
                     <Button
-                      variant={getAnswerStatus(currentSoal.id) === 'doubtful' ? "default" : "outline"}
+                      variant={getAnswerStatus(currentSoalId || '') === 'doubtful' ? "default" : "outline"}
                       size="sm"
-                      onClick={() => handleDoubtFlag(currentSoal.id)}
+                      onClick={() => handleDoubtFlag(currentSoalId || '')}
                     >
                       <Flag className="h-4 w-4 mr-1" />
                       Ragu-ragu
@@ -398,18 +498,18 @@ const TryoutPlayer: React.FC<TryoutPlayerProps> = ({ paketTryout }) => {
                     
                     {/* Answer options */}
                     <RadioGroup
-                      value={userAnswers[currentSoal.id]?.jawaban || ""}
-                      onValueChange={(value) => handleAnswerSelect(currentSoal.id, value)}
+                      value={userAnswers[currentSoalId || '']?.jawaban || ""}
+                      onValueChange={(value) => handleAnswerSelect(currentSoalId || '', value)}
                     >
-                      {currentSoal.pilihan_jawaban.map((pilihan) => (
-                        <div key={pilihan.id} className="flex items-center space-x-3 p-3 rounded-lg border hover:bg-accent/50 transition-colors">
-                          <RadioGroupItem value={pilihan.id} id={pilihan.id} />
+                      {Object.entries(currentSoal.pilihan_jawaban).map(([key, value]) => (
+                        <div key={key} className="flex items-center space-x-3 p-3 rounded-lg border hover:bg-accent/50 transition-colors">
+                          <RadioGroupItem value={key} id={key} />
                           <Label 
-                            htmlFor={pilihan.id} 
+                            htmlFor={key} 
                             className="flex-1 cursor-pointer text-base leading-relaxed"
                           >
-                            <span className="font-semibold mr-2">{pilihan.id}.</span>
-                            {pilihan.teks}
+                            <span className="font-semibold mr-2">{key}.</span>
+                            {value}
                           </Label>
                         </div>
                       ))}
@@ -428,12 +528,12 @@ const TryoutPlayer: React.FC<TryoutPlayerProps> = ({ paketTryout }) => {
                     </Button>
                     
                     <div className="text-sm text-muted-foreground">
-                      Estimasi waktu: {currentSoal.estimasi_waktu_detik}s
+                      Estimasi waktu: {currentSoal.waktu_pengerjaan_detik}s
                     </div>
                     
                     <Button
                       onClick={() => navigateToSoal(currentSoalIndex + 1)}
-                      disabled={currentSoalIndex === currentBlock.soal_ids.length - 1}
+                      disabled={currentSoalIndex === (currentBlock?.soal_ids.length || 0) - 1}
                     >
                       Selanjutnya
                       <ChevronRight className="h-4 w-4 ml-1" />

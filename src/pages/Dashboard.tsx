@@ -1,37 +1,41 @@
 import { useState } from "react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
-import { Progress } from "@/components/ui/progress";
-import { Badge } from "@/components/ui/badge";
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+// import { Progress } from "@/components/ui/progress"; // Removed unused import
+// import { Badge } from "@/components/ui/badge"; // Removed unused import
+// import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"; // Removed unused import
 import { 
   BookOpen, 
   Target, 
   Trophy, 
-  Calendar,
-  TrendingUp,
+  // Calendar, // Removed unused import
+  // TrendingUp, // Removed unused import
   Flame,
-  Star,
-  Clock,
+  // Star, // Removed unused import
+  // Clock, // Removed unused import
   Award,
   Users,
   ChevronRight,
-  Play,
+  // Play, // Removed unused import
   BarChart3,
   Gamepad2,
-  Gift
+  // Gift, // Removed unused import
+  Lightbulb,
+  Brain,
+  Heart,
+  Zap
 } from "lucide-react";
 import { Link } from "react-router-dom";
 import Navigation from "@/components/Navigation";
 import GamificationSystem from "@/components/GamificationSystem";
 import QuestTracker from "@/components/QuestTracker";
+import { DailyCheckIn } from "@/components/gamification/DailyCheckIn";
+import PWAHomeBanner from "@/components/PWAHomeBanner";
 import { scrollToTop } from '@/lib/utils';
 
 const Dashboard = () => {
-  const [currentStreak, setCurrentStreak] = useState(7);
-  const [totalXP, setTotalXP] = useState(2450);
-  const [currentLevel, setCurrentLevel] = useState(12);
-  const [nextLevelXP, setNextLevelXP] = useState(2800);
+  // Removed unused state variables: currentStreak, totalXP, currentLevel
+  // Removed unused nextLevelXP state
   const [showGamification, setShowGamification] = useState(false);
 
   const todayStats = {
@@ -41,22 +45,9 @@ const Dashboard = () => {
     xpEarned: 180
   };
 
-  // Daily checkpoint system - simulating user's current day
-  const currentDay = 3; // User is on day 3
-  const weeklyCheckpoints = [
-    { day: 1, unlocked: true, claimed: true, coins: 100 },
-    { day: 2, unlocked: true, claimed: true, coins: 150 },
-    { day: 3, unlocked: true, claimed: false, coins: 200 },
-    { day: 4, unlocked: false, claimed: false, coins: 250 },
-    { day: 5, unlocked: false, claimed: false, coins: 300 },
-    { day: 6, unlocked: false, claimed: false, coins: 350 },
-    { day: 7, unlocked: false, claimed: false, coins: 500 },
-  ];
+  // Removed unused currentDay and weeklyCheckpoints
 
-  const handleClaimReward = (day: number) => {
-    // Handle claim logic here
-    console.log(`Claimed reward for day ${day}`);
-  };
+  // Removed unused handleClaimReward function
 
   const recentAchievements = [
     { title: "First Try Out", description: "Menyelesaikan try out pertama", icon: Target, earned: "2 hari lalu" },
@@ -64,17 +55,34 @@ const Dashboard = () => {
     { title: "Math Master", description: "Skor 90+ di Penalaran Matematika", icon: Award, earned: "2 minggu lalu" }
   ];
 
-  const recommendedTopics = [
-    { title: "Penalaran Matematika - Fungsi", progress: 60, difficulty: "Menengah", estimatedTime: "30 menit" },
-    { title: "Literasi Bahasa Indonesia - Teks Argumentasi", progress: 30, difficulty: "Mudah", estimatedTime: "25 menit" },
-    { title: "Penalaran Umum - Logika", progress: 0, difficulty: "Sulit", estimatedTime: "45 menit" }
+  const studyTips = [
+    {
+      title: "💡 Tips Belajar Efektif",
+      content: "Gunakan teknik Pomodoro: belajar 25 menit, istirahat 5 menit. Ini membantu menjaga fokus dan mencegah kelelahan mental.",
+      category: "tip"
+    },
+    {
+      title: "🎯 Strategi Mengerjakan Soal",
+      content: "Baca soal dengan teliti, identifikasi kata kunci, dan eliminasi jawaban yang jelas salah terlebih dahulu.",
+      category: "tip"
+    },
+    {
+      title: "🔥 Motivasi Hari Ini",
+      content: "Setiap soal yang kamu kerjakan adalah satu langkah lebih dekat menuju PTN impianmu. Tetap semangat!",
+      category: "motivation"
+    },
+    {
+      title: "⭐ Mindset Juara",
+      content: "Kegagalan adalah guru terbaik. Setiap kesalahan adalah kesempatan untuk belajar dan menjadi lebih baik.",
+      category: "motivation"
+    }
   ];
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-background via-primary/5 to-accent/5">
       <Navigation />
 
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 pt-20 md:pt-24">
         {/* Welcome Section */}
         <div className="mb-8">
           <h1 className="text-3xl font-bold mb-2">Selamat datang kembali! 👋</h1>
@@ -83,60 +91,11 @@ const Dashboard = () => {
 
         {/* Main Content */}
         <div className="space-y-8">
-          {/* Top Section - Daily Checkpoint System */}
-          <Card>
-            <CardHeader>
-              <CardTitle className="flex items-center gap-2">
-                <Calendar className="h-5 w-5" />
-                Checkpoint Harian
-              </CardTitle>
-            </CardHeader>
-            <CardContent>
-              <div className="flex justify-between items-center mb-4">
-                {weeklyCheckpoints.map((checkpoint, index) => (
-                  <div key={index} className="flex flex-col items-center space-y-2">
-                    <div className={`w-12 h-12 rounded-full flex items-center justify-center text-sm font-medium border-2 transition-all duration-200 ${
-                      checkpoint.day === currentDay
-                        ? checkpoint.claimed
-                          ? 'bg-green-500 text-white border-green-500 ring-2 ring-green-200'
-                          : 'bg-gradient-to-br from-blue-500 to-purple-500 text-white border-blue-500 ring-2 ring-blue-200 shadow-lg'
-                        : checkpoint.claimed 
-                        ? 'bg-green-500 text-white border-green-500' 
-                        : checkpoint.unlocked 
-                        ? 'bg-primary text-primary-foreground border-primary' 
-                        : 'bg-muted text-muted-foreground border-muted'
-                    }`}>
-                      {checkpoint.claimed ? '✓' : checkpoint.day}
-                    </div>
-                    <span className={`text-xs font-medium ${
-                      checkpoint.day === currentDay ? 'text-blue-600' : 'text-muted-foreground'
-                    }`}>Hari {checkpoint.day}</span>
-                    <div className="flex flex-col items-center min-h-[60px] justify-between">
-                      <span className="text-xs font-medium text-yellow-600">{checkpoint.coins} 🪙</span>
-                      {checkpoint.unlocked && !checkpoint.claimed && (
-                        <Button 
-                          size="sm" 
-                          className={`mt-1 h-6 px-2 text-xs ${
-                            checkpoint.day === currentDay 
-                              ? 'bg-gradient-to-r from-blue-500 to-purple-500 hover:from-blue-600 hover:to-purple-600'
-                              : ''
-                          }`}
-                          onClick={() => handleClaimReward(checkpoint.day)}
-                        >
-                          Claim
-                        </Button>
-                      )}
-                    </div>
-                  </div>
-                ))}
-              </div>
-              <div className="text-center">
-                <Badge variant="secondary" className="px-3 py-1">
-                  🔥 Hari ke-{currentDay} dari siklus mingguan
-                </Badge>
-              </div>
-            </CardContent>
-          </Card>
+          {/* PWA Install Banner */}
+          <PWAHomeBanner />
+
+          {/* Top Section - Daily Check-in System */}
+          <DailyCheckIn />
 
           {/* Second Section - Stats, Achievements, Quick Actions */}
           <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
@@ -229,54 +188,65 @@ const Dashboard = () => {
                     <ChevronRight className="h-4 w-4" />
                   </Button>
                 </Link>
-                <Button 
-                  className="w-full justify-between bg-gradient-to-r from-purple-500 to-pink-500 hover:from-purple-600 hover:to-pink-600 text-white" 
-                  onClick={() => setShowGamification(true)}
-                >
-                  <span className="flex items-center gap-2">
-                    <Gamepad2 className="h-4 w-4" />
-                    Misi
-                  </span>
-                  <Gift className="h-4 w-4" />
-                </Button>
+                <Link to="/gamification" onClick={scrollToTop}>
+                  <Button className="w-full justify-between bg-gradient-to-r from-purple-500 to-pink-500 hover:from-purple-600 hover:to-pink-600 text-white">
+                    <span className="flex items-center gap-2">
+                      <Gamepad2 className="h-4 w-4" />
+                      Misi
+                    </span>
+                    <ChevronRight className="h-4 w-4" />
+                  </Button>
+                </Link>
               </CardContent>
             </Card>
           </div>
 
           {/* Third Section - Recommended Topics and Quest Tracker */}
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-            {/* Recommended Topics */}
+            {/* Study Tips & Motivation */}
             <Card className="h-full">
               <CardHeader>
                 <CardTitle className="flex items-center gap-2">
-                  <TrendingUp className="h-5 w-5" />
-                  Rekomendasi Belajar
+                  <Lightbulb className="h-5 w-5" />
+                  Tips & Motivasi Belajar
                 </CardTitle>
               </CardHeader>
               <CardContent className="space-y-4">
-                {recommendedTopics.map((topic, index) => (
-                  <div key={index} className="flex items-center justify-between p-4 border rounded-lg hover:bg-muted/50 transition-colors">
-                    <div className="flex-1">
-                      <h4 className="font-medium mb-1">{topic.title}</h4>
-                      <div className="flex items-center gap-4 text-sm text-muted-foreground">
-                        <span className="flex items-center gap-1">
-                          <Clock className="h-3 w-3" />
-                          {topic.estimatedTime}
-                        </span>
-                        <Badge variant={topic.difficulty === 'Mudah' ? 'secondary' : topic.difficulty === 'Menengah' ? 'default' : 'destructive'} className="text-xs">
-                          {topic.difficulty}
-                        </Badge>
-                      </div>
-                      {topic.progress > 0 && (
-                        <Progress value={topic.progress} className="mt-2 h-2" />
+                {studyTips.map((tip, index) => (
+                  <div key={index} className={`p-4 border rounded-lg transition-colors ${
+                    tip.category === 'motivation' 
+                      ? 'bg-gradient-to-r from-orange-50 to-red-50 border-orange-200 hover:from-orange-100 hover:to-red-100' 
+                      : 'bg-gradient-to-r from-blue-50 to-indigo-50 border-blue-200 hover:from-blue-100 hover:to-indigo-100'
+                  }`}>
+                    <h4 className="font-medium mb-2 flex items-center gap-2">
+                      {tip.category === 'motivation' ? (
+                        <Heart className="h-4 w-4 text-red-500" />
+                      ) : (
+                        <Zap className="h-4 w-4 text-blue-500" />
                       )}
-                    </div>
-                    <Button size="sm" className="ml-4">
-                      <Play className="h-4 w-4 mr-1" />
-                      Mulai
-                    </Button>
+                      {tip.title}
+                    </h4>
+                    <p className="text-sm text-muted-foreground leading-relaxed">
+                      {tip.content}
+                    </p>
                   </div>
                 ))}
+                
+                {/* Action Buttons */}
+                <div className="grid grid-cols-1 gap-3 mt-6 pt-4 border-t">
+                  <Link to="/analisis-potensi" onClick={scrollToTop}>
+                    <Button className="w-full justify-center bg-gradient-to-r from-purple-500 to-indigo-500 hover:from-purple-600 hover:to-indigo-600 text-white">
+                      <Brain className="h-4 w-4 mr-2" />
+                      Analisis Potensi
+                    </Button>
+                  </Link>
+                  <Link to="/materi-belajar" onClick={scrollToTop}>
+                    <Button className="w-full justify-center" variant="outline">
+                      <BookOpen className="h-4 w-4 mr-2" />
+                      Materi Belajar
+                    </Button>
+                  </Link>
+                </div>
               </CardContent>
             </Card>
 

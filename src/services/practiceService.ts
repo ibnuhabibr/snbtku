@@ -25,7 +25,6 @@ import {
   Question,
   QuestionSet,
   PracticeResult,
-  UserAnswer,
   PracticeStats,
   PracticeFilter,
   RecentActivity
@@ -43,7 +42,7 @@ export const getQuestionSets = async (
   filter?: PracticeFilter, 
   lastDoc?: QueryDocumentSnapshot<DocumentData>, 
   pageSize: number = 10
-): Promise<{ questionSets: QuestionSet[], lastDoc: QueryDocumentSnapshot<DocumentData> | null }> => {
+): Promise<{ questionSets: QuestionSet[], lastDoc: QueryDocumentSnapshot<DocumentData> | null | undefined }> => {
   try {
     let questionSetsQuery = collection(db, QUESTION_SETS_COLLECTION);
     let constraints = [];
@@ -351,7 +350,7 @@ export const getPracticeResultById = async (id: string): Promise<PracticeResult 
 /**
  * Mengambil hasil latihan soal untuk pengguna tertentu
  */
-export const getUserPracticeResults = async (userId: string, limit?: number): Promise<PracticeResult[]> => {
+export const getUserPracticeResults = async (userId: string, limitCount?: number): Promise<PracticeResult[]> => {
   try {
     let resultsRef = query(
       collection(db, PRACTICE_RESULTS_COLLECTION),
@@ -359,8 +358,8 @@ export const getUserPracticeResults = async (userId: string, limit?: number): Pr
       orderBy('completedAt', 'desc')
     );
     
-    if (limit) {
-      resultsRef = query(resultsRef, limit(limit));
+    if (limitCount) {
+      resultsRef = query(resultsRef, limit(limitCount));
     }
     
     const snapshot = await getDocs(resultsRef);
@@ -414,7 +413,7 @@ export const getUserPracticeStats = async (userId: string): Promise<PracticeStat
       const today = new Date();
       today.setHours(0, 0, 0, 0);
       
-      const lastPracticeDate = new Date(sortedResults[0].completedAt);
+      const lastPracticeDate = new Date(sortedResults[0]?.completedAt || new Date());
       lastPracticeDate.setHours(0, 0, 0, 0);
       
       const dayDiff = Math.floor((today.getTime() - lastPracticeDate.getTime()) / (1000 * 60 * 60 * 24));
@@ -427,7 +426,7 @@ export const getUserPracticeStats = async (userId: string): Promise<PracticeStat
         currentDate.setDate(currentDate.getDate() - 1);
         
         for (let i = 1; i < sortedResults.length; i++) {
-          const practiceDate = new Date(sortedResults[i].completedAt);
+          const practiceDate = new Date(sortedResults[i]?.completedAt || new Date());
           practiceDate.setHours(0, 0, 0, 0);
           
           if (practiceDate.getTime() === currentDate.getTime()) {
@@ -510,7 +509,9 @@ export const getRecentActivity = async (userId: string, count: number = 5): Prom
         const timeFormatted = `${minutes}:${seconds.toString().padStart(2, '0')}`;
         
         // Format tanggal
-        const completedDate = resultData.completedAt.toDate();
+        const completedDate = resultData.completedAt instanceof Date 
+          ? resultData.completedAt 
+          : (resultData.completedAt as any)?.toDate ? (resultData.completedAt as any).toDate() : new Date();
         const now = new Date();
         let dateFormatted: string;
         

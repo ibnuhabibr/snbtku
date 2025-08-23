@@ -5,14 +5,15 @@ import { Avatar, AvatarImage, AvatarFallback } from '@/components/ui/avatar';
 import { ScrollArea } from '@/components/ui/scroll-area';
 import { Badge } from '@/components/ui/badge';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
-import { Smile, Heart, Star, Sparkles } from 'lucide-react';
+import { Smile, Heart, Star, Sparkles, Lock, ShoppingBag } from 'lucide-react';
 import { motion } from 'framer-motion';
+
 
 interface HappyAvatar {
   id: string;
   name: string;
   url: string;
-  category: 'cute' | 'superhero' | 'animal' | 'fantasy' | 'profession';
+  category: 'free' | 'purchased';
   rarity: 'common' | 'rare' | 'epic' | 'legendary';
   unlocked: boolean;
   cost?: number;
@@ -31,180 +32,164 @@ const HappyAvatarSelector: React.FC<HappyAvatarSelectorProps> = ({
   onSelect,
   currentAvatar
 }) => {
-  const [selectedCategory, setSelectedCategory] = useState<string>('cute');
+  const [selectedCategory, setSelectedCategory] = useState<string>('free');
   const [selectedAvatar, setSelectedAvatar] = useState<string>(currentAvatar || '');
+  const [showLockedDialog, setShowLockedDialog] = useState(false);
 
-  // Happy and cute avatar collection
+
+  // Avatar collection
   const happyAvatars: HappyAvatar[] = [
-    // Cute Characters
+    // Free Avatars
     {
       id: '1',
-      name: '😊 Happy Student',
-      url: 'https://api.dicebear.com/7.x/avataaars/svg?seed=HappyStudent&mood=happy&eyes=happy&mouth=smile',
-      category: 'cute',
+      name: '😊 Sunshine Student',
+      url: 'https://api.dicebear.com/7.x/avataaars/svg?seed=SunshineStudent&mood=happy&eyes=happy&mouth=smile&skinColor=fdbcb4&hairColor=724133&clothingColor=3c4f5c',
+      category: 'free',
       rarity: 'common',
       unlocked: true
     },
     {
       id: '2',
-      name: '😄 Cheerful Learner',
-      url: 'https://api.dicebear.com/7.x/avataaars/svg?seed=CheerfulLearner&mood=happy&eyes=wink&mouth=smile',
-      category: 'cute',
+      name: '😄 Joyful Genius',
+      url: 'https://api.dicebear.com/7.x/avataaars/svg?seed=JoyfulGenius&mood=happy&eyes=wink&mouth=smile&skinColor=f8d25c&hairColor=2c1b18&clothingColor=65c9ff',
+      category: 'free',
       rarity: 'common',
       unlocked: true
     },
     {
       id: '3',
-      name: '🤗 Friendly Helper',
-      url: 'https://api.dicebear.com/7.x/avataaars/svg?seed=FriendlyHelper&mood=happy&eyes=happy&mouth=smile',
-      category: 'cute',
+      name: '🤗 Bright Buddy',
+      url: 'https://api.dicebear.com/7.x/avataaars/svg?seed=BrightBuddy&mood=happy&eyes=happy&mouth=smile&skinColor=edb98a&hairColor=auburn&clothingColor=ff5c5c',
+      category: 'free',
       rarity: 'common',
       unlocked: true
     },
     {
       id: '4',
-      name: '😍 Study Buddy',
-      url: 'https://api.dicebear.com/7.x/avataaars/svg?seed=StudyBuddy&mood=happy&eyes=hearts&mouth=smile',
-      category: 'cute',
-      rarity: 'rare',
+      name: '😍 Cheerful Champion',
+      url: 'https://api.dicebear.com/7.x/avataaars/svg?seed=CheerfulChampion&mood=happy&eyes=hearts&mouth=smile&skinColor=ae5d29&hairColor=blonde&clothingColor=25557c',
+      category: 'free',
+      rarity: 'common',
       unlocked: true
     },
     {
       id: '5',
-      name: '🥰 Sweet Scholar',
-      url: 'https://api.dicebear.com/7.x/avataaars/svg?seed=SweetScholar&mood=happy&eyes=happy&mouth=smile',
-      category: 'cute',
-      rarity: 'rare',
+      name: '🥰 Sweet Smarty',
+      url: 'https://api.dicebear.com/7.x/avataaars/svg?seed=SweetSmarty&mood=happy&eyes=happy&mouth=smile&skinColor=fd9841&hairColor=brown&clothingColor=ff488e',
+      category: 'free',
+      rarity: 'common',
       unlocked: true
     },
-    
-    // Animal Characters
     {
       id: '6',
-      name: '🐱 Happy Kitty',
-      url: 'https://api.dicebear.com/7.x/avataaars/svg?seed=HappyKitty&mood=happy&eyes=happy&mouth=smile&accessoriesChance=80',
-      category: 'animal',
+      name: '🌟 Radiant Reader',
+      url: 'https://api.dicebear.com/7.x/avataaars/svg?seed=RadiantReader&mood=happy&eyes=happy&mouth=smile&skinColor=ffdbac&hairColor=red&clothingColor=7bc142',
+      category: 'free',
       rarity: 'common',
       unlocked: true
     },
     {
       id: '7',
-      name: '🐼 Smiling Panda',
-      url: 'https://api.dicebear.com/7.x/avataaars/svg?seed=SmilingPanda&mood=happy&eyes=happy&mouth=smile',
-      category: 'animal',
+      name: '✨ Sparkle Scholar',
+      url: 'https://api.dicebear.com/7.x/avataaars/svg?seed=SparkleScholar&mood=happy&eyes=wink&mouth=smile&skinColor=d08b5b&hairColor=black&clothingColor=ff8cc8',
+      category: 'free',
       rarity: 'common',
       unlocked: true
     },
-    {
-      id: '8',
-      name: '🦊 Clever Fox',
-      url: 'https://api.dicebear.com/7.x/avataaars/svg?seed=CleverFox&mood=happy&eyes=wink&mouth=smile',
-      category: 'animal',
-      rarity: 'rare',
-      unlocked: true
-    },
-    {
-      id: '9',
-      name: '🐨 Cuddly Koala',
-      url: 'https://api.dicebear.com/7.x/avataaars/svg?seed=CuddlyKoala&mood=happy&eyes=happy&mouth=smile',
-      category: 'animal',
-      rarity: 'rare',
-      unlocked: true
-    },
-    {
-      id: '10',
-      name: '🦄 Magic Unicorn',
-      url: 'https://api.dicebear.com/7.x/avataaars/svg?seed=MagicUnicorn&mood=happy&eyes=happy&mouth=smile&accessoriesChance=100',
-      category: 'animal',
-      rarity: 'epic',
-      unlocked: true
-    },
     
-    // Superhero Characters
+    // Purchased Avatars - Karakter Terkenal
     {
-      id: '11',
-      name: '🦸‍♂️ Happy Hero',
-      url: 'https://api.dicebear.com/7.x/avataaars/svg?seed=HappyHero&mood=happy&eyes=happy&mouth=smile&accessoriesChance=90',
-      category: 'superhero',
+      id: '50',
+      name: '🕷️ Spiderman',
+      url: 'https://api.dicebear.com/7.x/avataaars/svg?seed=Spiderman&mood=happy&eyes=happy&mouth=smile&skinColor=fdbcb4&hairColor=red&clothingColor=ff0000&accessoriesChance=100',
+      category: 'purchased',
       rarity: 'epic',
-      unlocked: true
+      unlocked: false,
+      cost: 800
     },
     {
-      id: '12',
-      name: '⚡ Thunder Smile',
-      url: 'https://api.dicebear.com/7.x/avataaars/svg?seed=ThunderSmile&mood=happy&eyes=happy&mouth=smile',
-      category: 'superhero',
+      id: '51',
+      name: '🦇 Batman',
+      url: 'https://api.dicebear.com/7.x/avataaars/svg?seed=Batman&mood=happy&eyes=happy&mouth=smile&skinColor=fdbcb4&hairColor=black&clothingColor=000000&accessoriesChance=100',
+      category: 'purchased',
       rarity: 'epic',
-      unlocked: true
+      unlocked: false,
+      cost: 850
     },
     {
-      id: '13',
-      name: '🔥 Fire Guardian',
-      url: 'https://api.dicebear.com/7.x/avataaars/svg?seed=FireGuardian&mood=happy&eyes=happy&mouth=smile',
-      category: 'superhero',
+      id: '52',
+      name: '🦸‍♂️ Superman',
+      url: 'https://api.dicebear.com/7.x/avataaars/svg?seed=Superman&mood=happy&eyes=happy&mouth=smile&skinColor=fdbcb4&hairColor=black&clothingColor=0066cc&accessoriesChance=100',
+      category: 'purchased',
+      rarity: 'epic',
+      unlocked: false,
+      cost: 900
+    },
+    {
+      id: '53',
+      name: '🤖 Iron Man',
+      url: 'https://api.dicebear.com/7.x/avataaars/svg?seed=IronMan&mood=happy&eyes=happy&mouth=smile&skinColor=fdbcb4&hairColor=brown&clothingColor=cc0000&accessoriesChance=100',
+      category: 'purchased',
+      rarity: 'epic',
+      unlocked: false,
+      cost: 950
+    },
+    {
+      id: '54',
+      name: '👸 Wonder Woman',
+      url: 'https://api.dicebear.com/7.x/avataaars/svg?seed=WonderWoman&mood=happy&eyes=happy&mouth=smile&skinColor=fdbcb4&hairColor=black&clothingColor=cc0000&accessoriesChance=100',
+      category: 'purchased',
+      rarity: 'epic',
+      unlocked: false,
+      cost: 800
+    },
+    {
+      id: '55',
+      name: '🛡️ Captain America',
+      url: 'https://api.dicebear.com/7.x/avataaars/svg?seed=CaptainAmerica&mood=happy&eyes=happy&mouth=smile&skinColor=fdbcb4&hairColor=blonde&clothingColor=0066cc&accessoriesChance=100',
+      category: 'purchased',
+      rarity: 'epic',
+      unlocked: false,
+      cost: 850
+    },
+    {
+      id: '56',
+      name: '⚡ Thor',
+      url: 'https://api.dicebear.com/7.x/avataaars/svg?seed=Thor&mood=happy&eyes=happy&mouth=smile&skinColor=fdbcb4&hairColor=blonde&clothingColor=cc0000&accessoriesChance=100',
+      category: 'purchased',
       rarity: 'legendary',
-      unlocked: true
+      unlocked: false,
+      cost: 1000
     },
-    
-    // Fantasy Characters
     {
-      id: '14',
-      name: '🧙‍♂️ Wise Wizard',
-      url: 'https://api.dicebear.com/7.x/avataaars/svg?seed=WiseWizard&mood=happy&eyes=happy&mouth=smile&accessoriesChance=100',
-      category: 'fantasy',
+      id: '57',
+      name: '💚 Hulk',
+      url: 'https://api.dicebear.com/7.x/avataaars/svg?seed=Hulk&mood=happy&eyes=happy&mouth=smile&skinColor=00cc00&hairColor=black&clothingColor=663399&accessoriesChance=100',
+      category: 'purchased',
       rarity: 'epic',
-      unlocked: true
+      unlocked: false,
+      cost: 900
     },
     {
-      id: '15',
-      name: '🧚‍♀️ Happy Fairy',
-      url: 'https://api.dicebear.com/7.x/avataaars/svg?seed=HappyFairy&mood=happy&eyes=happy&mouth=smile',
-      category: 'fantasy',
-      rarity: 'rare',
-      unlocked: true
+      id: '58',
+      name: '🐾 Black Panther',
+      url: 'https://api.dicebear.com/7.x/avataaars/svg?seed=BlackPanther&mood=happy&eyes=happy&mouth=smile&skinColor=ae5d29&hairColor=black&clothingColor=000000&accessoriesChance=100',
+      category: 'purchased',
+      rarity: 'epic',
+      unlocked: false,
+      cost: 950
     },
     {
-      id: '16',
-      name: '👑 Royal Scholar',
-      url: 'https://api.dicebear.com/7.x/avataaars/svg?seed=RoyalScholar&mood=happy&eyes=happy&mouth=smile&accessoriesChance=100',
-      category: 'fantasy',
+      id: '59',
+      name: '🔮 Doctor Strange',
+      url: 'https://api.dicebear.com/7.x/avataaars/svg?seed=DoctorStrange&mood=happy&eyes=happy&mouth=smile&skinColor=fdbcb4&hairColor=black&clothingColor=663399&accessoriesChance=100',
+      category: 'purchased',
       rarity: 'legendary',
-      unlocked: true
+      unlocked: false,
+      cost: 1200
     },
     
-    // Profession Characters
-    {
-      id: '17',
-      name: '👨‍🎓 Graduate',
-      url: 'https://api.dicebear.com/7.x/avataaars/svg?seed=Graduate&mood=happy&eyes=happy&mouth=smile&accessoriesChance=100',
-      category: 'profession',
-      rarity: 'rare',
-      unlocked: true
-    },
-    {
-      id: '18',
-      name: '👩‍🔬 Scientist',
-      url: 'https://api.dicebear.com/7.x/avataaars/svg?seed=Scientist&mood=happy&eyes=happy&mouth=smile',
-      category: 'profession',
-      rarity: 'rare',
-      unlocked: true
-    },
-    {
-      id: '19',
-      name: '🚀 Astronaut',
-      url: 'https://api.dicebear.com/7.x/avataaars/svg?seed=Astronaut&mood=happy&eyes=happy&mouth=smile&accessoriesChance=100',
-      category: 'profession',
-      rarity: 'epic',
-      unlocked: true
-    },
-    {
-      id: '20',
-      name: '🎨 Artist',
-      url: 'https://api.dicebear.com/7.x/avataaars/svg?seed=Artist&mood=happy&eyes=happy&mouth=smile',
-      category: 'profession',
-      rarity: 'common',
-      unlocked: true
-    }
+
   ];
 
   const getRarityColor = (rarity: string) => {
@@ -227,21 +212,17 @@ const HappyAvatarSelector: React.FC<HappyAvatarSelectorProps> = ({
     }
   };
 
-  const getCategoryDisplayName = (category: string) => {
-    switch (category) {
-      case 'cute': return '😊 Cute';
-      case 'animal': return '🐾 Animals';
-      case 'superhero': return '🦸 Heroes';
-      case 'fantasy': return '✨ Fantasy';
-      case 'profession': return '👔 Professions';
-      default: return category;
-    }
-  };
+
 
   const filteredAvatars = happyAvatars.filter(avatar => avatar.category === selectedCategory);
 
-  const handleSelect = (avatarUrl: string) => {
-    setSelectedAvatar(avatarUrl);
+  const handleSelect = (avatar: HappyAvatar) => {
+    if (!avatar.unlocked && avatar.category === 'purchased') {
+      // Show locked dialog for premium avatars
+      setShowLockedDialog(true);
+      return;
+    }
+    setSelectedAvatar(avatar.url);
   };
 
   const handleConfirm = () => {
@@ -262,15 +243,15 @@ const HappyAvatarSelector: React.FC<HappyAvatarSelectorProps> = ({
         </DialogHeader>
         
         <Tabs value={selectedCategory} onValueChange={setSelectedCategory}>
-          <TabsList className="grid w-full grid-cols-5">
-            {['cute', 'animal', 'superhero', 'fantasy', 'profession'].map((category) => (
+          <TabsList className="grid w-full grid-cols-2">
+            {['free', 'purchased'].map((category) => (
               <TabsTrigger key={category} value={category} className="text-xs">
-                {getCategoryDisplayName(category)}
+                {category === 'free' ? '🆓 Gratis' : '💎 Premium'}
               </TabsTrigger>
             ))}
           </TabsList>
           
-          {['cute', 'animal', 'superhero', 'fantasy', 'profession'].map((category) => (
+          {['free', 'purchased'].map((category) => (
             <TabsContent key={category} value={category}>
               <ScrollArea className="h-96">
                 <div className="grid grid-cols-4 md:grid-cols-6 gap-4 p-4">
@@ -284,7 +265,7 @@ const HappyAvatarSelector: React.FC<HappyAvatarSelectorProps> = ({
                           ? 'ring-2 ring-primary ring-offset-2' 
                           : 'hover:ring-2 hover:ring-primary/50 hover:ring-offset-2'
                       }`}
-                      onClick={() => handleSelect(avatar.url)}
+                      onClick={() => handleSelect(avatar)}
                     >
                       <div className="text-center space-y-2">
                         <div className="relative">
@@ -308,6 +289,13 @@ const HappyAvatarSelector: React.FC<HappyAvatarSelectorProps> = ({
                               {getRarityIcon(avatar.rarity)}
                             </Badge>
                           </div>
+                          
+                          {/* Locked Overlay for Premium Avatars */}
+                          {!avatar.unlocked && avatar.category === 'purchased' && (
+                            <div className="absolute inset-0 bg-black/60 rounded-full flex items-center justify-center">
+                              <Lock className="h-4 w-4 text-white" />
+                            </div>
+                          )}
                           
                           {/* Selection Indicator */}
                           {selectedAvatar === avatar.url && (
@@ -361,6 +349,44 @@ const HappyAvatarSelector: React.FC<HappyAvatarSelectorProps> = ({
           </div>
         </div>
       </DialogContent>
+      
+      {/* Locked Avatar Dialog */}
+      <Dialog open={showLockedDialog} onOpenChange={setShowLockedDialog}>
+        <DialogContent className="max-w-md">
+          <DialogHeader>
+            <DialogTitle className="flex items-center gap-2">
+              <Lock className="h-5 w-5 text-yellow-500" />
+              Avatar Terkunci
+            </DialogTitle>
+          </DialogHeader>
+          <div className="text-center py-4">
+            <div className="mb-4">
+              <ShoppingBag className="h-12 w-12 text-yellow-500 mx-auto mb-2" />
+              <p className="text-lg font-medium mb-2">Avatar Premium</p>
+              <p className="text-muted-foreground">
+                Avatar ini adalah avatar premium yang perlu dibeli terlebih dahulu.
+              </p>
+            </div>
+            <div className="flex gap-2 justify-center">
+              <Button variant="outline" onClick={() => setShowLockedDialog(false)}>
+                Tutup
+              </Button>
+              <Button 
+                onClick={() => {
+                  setShowLockedDialog(false);
+                  onClose();
+                  // Navigate to shop - you might want to use router here
+                  window.location.href = '/toko';
+                }}
+                className="bg-gradient-to-r from-yellow-400 to-orange-500 hover:from-yellow-500 hover:to-orange-600"
+              >
+                <ShoppingBag className="h-4 w-4 mr-2" />
+                Silakan Beli di Toko
+              </Button>
+            </div>
+          </div>
+        </DialogContent>
+      </Dialog>
     </Dialog>
   );
 };

@@ -56,6 +56,7 @@ const LevelUpAnimation: React.FC<LevelUpAnimationProps> = ({
       
       return () => timeouts.forEach(clearTimeout);
     }
+    return undefined;
   }, [isVisible]);
 
   if (!isVisible) return null;

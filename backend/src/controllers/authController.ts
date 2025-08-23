@@ -30,6 +30,36 @@ const JWT_SECRET = process.env.JWT_SECRET || 'your-secret-key';
 const SALT_ROUNDS = 12;
 const ADMIN_PASSKEY = process.env.ADMIN_PASSKEY || 'admin123'; // Default passkey untuk admin
 
+// Function to generate unique user ID
+const generateUniqueId = async (): Promise<string> => {
+  const characters = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789';
+  let attempts = 0;
+  const maxAttempts = 10;
+  
+  while (attempts < maxAttempts) {
+    let uniqueId = '';
+    for (let i = 0; i < 8; i++) {
+      uniqueId += characters.charAt(Math.floor(Math.random() * characters.length));
+    }
+    
+    // Check if this ID already exists
+    const existingUser = await db
+      .select({ id: users.id })
+      .from(users)
+      .where(eq(users.unique_id, uniqueId))
+      .limit(1);
+    
+    if (existingUser.length === 0) {
+      return uniqueId;
+    }
+    
+    attempts++;
+  }
+  
+  // If we can't generate a unique ID after max attempts, throw error
+  throw new Error('Unable to generate unique ID');
+};
+
 export class AuthController {
   static async register(request: FastifyRequest<{ Body: RegisterBody }>, reply: FastifyReply) {
     try {
@@ -60,18 +90,23 @@ export class AuthController {
 
       // Hash password
       const hashedPassword = await bcrypt.hash(password, SALT_ROUNDS);
+      
+      // Generate unique ID
+      const uniqueId = await generateUniqueId();
 
       // Create user
       const newUser = await db
         .insert(users)
         .values({
           email,
+          unique_id: uniqueId,
           password_hash: hashedPassword,
           full_name: name,
           is_active: true
         })
         .returning({
           id: users.id,
+          unique_id: users.unique_id,
           email: users.email,
           full_name: users.full_name,
           role: users.role,
@@ -99,6 +134,7 @@ export class AuthController {
         token,
         user: {
           id: newUser[0].id,
+          uniqueId: newUser[0].unique_id,
           email: newUser[0].email,
           name: newUser[0].full_name,
           role: newUser[0].role,
@@ -236,6 +272,7 @@ export class AuthController {
       const user = await db
         .select({
           id: users.id,
+          unique_id: users.unique_id,
           email: users.email,
           name: users.full_name,
           role: users.role,
@@ -366,10 +403,14 @@ export class AuthController {
           .where(eq(users.id, user.id));
       } else {
         // User baru, buat akun
+        // Generate unique ID
+        const uniqueId = await generateUniqueId();
+        
         const newUserResult = await db
           .insert(users)
           .values({
             email,
+            unique_id: uniqueId,
             full_name: name,
             password_hash: await bcrypt.hash(firebaseUid, SALT_ROUNDS), // Hash firebase UID sebagai password
             role: 'student',

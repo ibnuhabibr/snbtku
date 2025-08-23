@@ -14,11 +14,9 @@ import {
   Languages, 
   PenTool,
   Play,
-  Clock,
   Target,
   Star,
   CheckCircle,
-  Lock,
   Trophy,
   Award,
   ChevronRight,
@@ -182,19 +180,13 @@ const StudyJourney = () => {
     }
   };
 
-  const totalXP = learningPaths.reduce((sum, path) => {
-    return sum + (path.status === 'completed' ? path.xpReward : 0);
-  }, 0);
 
-  const totalProgress = Math.round(
-    learningPaths.reduce((sum, path) => sum + path.progress, 0) / learningPaths.length
-  );
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-background via-primary/5 to-accent/5">
       <Navigation />
       
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 pt-20 md:pt-24">
         {/* Header */}
         <div className="text-center mb-12">
           <h1 className="text-4xl font-bold mb-4 bg-gradient-to-r from-primary to-accent bg-clip-text text-transparent">
@@ -205,38 +197,7 @@ const StudyJourney = () => {
             Setiap jalur pembelajaran dirancang untuk membangun kemampuan Anda secara bertahap.
           </p>
           
-          {/* Stats Cards */}
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
-            <Card className="text-center">
-              <CardContent className="p-6">
-                <div className="flex items-center justify-center mb-4">
-                  <Trophy className="h-12 w-12 text-yellow-600" />
-                </div>
-                <h3 className="text-2xl font-bold text-gray-900 mb-2">{totalXP}</h3>
-                <p className="text-muted-foreground">Total XP</p>
-              </CardContent>
-            </Card>
-            
-            <Card className="text-center">
-              <CardContent className="p-6">
-                <div className="flex items-center justify-center mb-4">
-                  <Target className="h-12 w-12 text-green-600" />
-                </div>
-                <h3 className="text-2xl font-bold text-gray-900 mb-2">{totalProgress}%</h3>
-                <p className="text-muted-foreground">Progress Keseluruhan</p>
-              </CardContent>
-            </Card>
-            
-            <Card className="text-center">
-              <CardContent className="p-6">
-                <div className="flex items-center justify-center mb-4">
-                  <Clock className="h-12 w-12 text-purple-600" />
-                </div>
-                <h3 className="text-2xl font-bold text-gray-900 mb-2">52</h3>
-                <p className="text-muted-foreground">Jam Pembelajaran</p>
-              </CardContent>
-            </Card>
-          </div>
+
         </div>
 
         {/* Learning Paths - Horizontal Scroll */}
@@ -252,7 +213,7 @@ const StudyJourney = () => {
           <div className="hidden lg:block">
             <div className="overflow-x-auto pb-4">
               <div className="flex space-x-6 min-w-max">
-                {learningPaths.map((path, index) => {
+                {learningPaths.map((path) => {
                   const IconComponent = () => path.icon;
                   return (
                     <Card 

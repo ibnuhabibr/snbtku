@@ -1,5 +1,4 @@
 import { NavigateFunction } from 'react-router-dom';
-import { User } from 'firebase/auth';
 
 /**
  * Handles authentication-aware navigation
@@ -7,11 +6,11 @@ import { User } from 'firebase/auth';
  * If user is not logged in, redirects to the specified auth page
  */
 export const handleAuthNavigation = (
-  currentUser: User | null,
+  isAuthenticated: boolean,
   navigate: NavigateFunction,
   authPage: 'login' | 'register' = 'register'
 ) => {
-  if (currentUser) {
+  if (isAuthenticated) {
     navigate('/dashboard');
   } else {
     navigate(`/${authPage}`);
@@ -24,10 +23,10 @@ export const handleAuthNavigation = (
  * If user is not logged in, redirects to register page
  */
 export const handleStartLearning = (
-  currentUser: User | null,
+  isAuthenticated: boolean,
   navigate: NavigateFunction
 ) => {
-  handleAuthNavigation(currentUser, navigate, 'register');
+  handleAuthNavigation(isAuthenticated, navigate, 'register');
 };
 
 /**
@@ -36,10 +35,10 @@ export const handleStartLearning = (
  * If user is not logged in, redirects to register page
  */
 export const handleRegisterNavigation = (
-  currentUser: User | null,
+  isAuthenticated: boolean,
   navigate: NavigateFunction
 ) => {
-  handleAuthNavigation(currentUser, navigate, 'register');
+  handleAuthNavigation(isAuthenticated, navigate, 'register');
 };
 
 /**
@@ -48,8 +47,8 @@ export const handleRegisterNavigation = (
  * If user is not logged in, redirects to login page
  */
 export const handleLoginNavigation = (
-  currentUser: User | null,
+  isAuthenticated: boolean,
   navigate: NavigateFunction
 ) => {
-  handleAuthNavigation(currentUser, navigate, 'login');
+  handleAuthNavigation(isAuthenticated, navigate, 'login');
 };

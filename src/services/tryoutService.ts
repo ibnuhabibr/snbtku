@@ -28,7 +28,6 @@ import {
   TryoutStats,
   ScheduledTryout,
   TryoutFilter,
-  TryoutStatus,
   SubtestResult
 } from '@/models/tryout';
 import { Question, UserAnswer } from '@/models/practice';
@@ -47,7 +46,7 @@ export const getTryouts = async (
   filter?: TryoutFilter, 
   lastDoc?: QueryDocumentSnapshot<DocumentData>, 
   pageSize: number = 10
-): Promise<{ tryouts: Tryout[], lastDoc: QueryDocumentSnapshot<DocumentData> | null }> => {
+): Promise<{ tryouts: Tryout[], lastDoc: QueryDocumentSnapshot<DocumentData> | null | undefined }> => {
   try {
     let tryoutsQuery = collection(db, TRYOUTS_COLLECTION);
     let constraints = [];
@@ -282,7 +281,7 @@ export const getTryoutResultById = async (id: string): Promise<TryoutResult | nu
 /**
  * Mengambil hasil tryout untuk pengguna tertentu
  */
-export const getUserTryoutResults = async (userId: string, limit?: number): Promise<TryoutResult[]> => {
+export const getUserTryoutResults = async (userId: string, limitCount?: number): Promise<TryoutResult[]> => {
   try {
     let resultsRef = query(
       collection(db, TRYOUT_RESULTS_COLLECTION),
@@ -290,8 +289,8 @@ export const getUserTryoutResults = async (userId: string, limit?: number): Prom
       orderBy('completedDate', 'desc')
     );
     
-    if (limit) {
-      resultsRef = query(resultsRef, limit(limit));
+    if (limitCount) {
+      resultsRef = query(resultsRef, limit(limitCount));
     }
     
     const snapshot = await getDocs(resultsRef);
@@ -342,7 +341,7 @@ export const getUserTryoutStats = async (userId: string): Promise<TryoutStats> =
     if (userResults.length > 0) {
       // Ambil hasil tryout terbaru
       const latestResult = userResults[0];
-      rank = latestResult.rank;
+      rank = latestResult?.rank || 0;
     }
     
     return {

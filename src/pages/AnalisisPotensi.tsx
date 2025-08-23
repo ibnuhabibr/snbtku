@@ -83,10 +83,10 @@ const AnalisisPotensi: React.FC = () => {
   };
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-background via-primary/5 to-accent/5">
+    <div className="min-h-screen bg-gray-50 pt-20 md:pt-24">
       <Navigation />
       
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 pt-24 md:pt-20">
         {/* Header */}
         <div className="text-center mb-12">
           <h1 className="text-4xl font-bold mb-4 bg-gradient-to-r from-primary to-accent bg-clip-text text-transparent">
@@ -175,7 +175,7 @@ const AnalisisPotensi: React.FC = () => {
                   <span className="text-blue-700 font-medium">Perkembangan Keseluruhan:</span>
                   <span className="text-blue-900 font-bold">
                     {analysisData.tryoutProgress.length > 1 && 
-                      `+${analysisData.tryoutProgress[analysisData.tryoutProgress.length - 1].score - analysisData.tryoutProgress[0].score} poin dari tryout pertama`
+                      `+${(analysisData.tryoutProgress[analysisData.tryoutProgress.length - 1]?.score || 0) - (analysisData.tryoutProgress[0]?.score || 0)} poin dari tryout pertama`
                     }
                   </span>
                 </div>

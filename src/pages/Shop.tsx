@@ -1,15 +1,15 @@
-import React, { useState } from 'react';
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import React, { useState, useEffect, useMemo } from 'react';
+import { Card, CardContent } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
+import { useToast } from '@/components/ui/use-toast';
 import { 
   ShoppingBag, 
   Coins, 
   Star, 
   Crown, 
   Zap,
-  Gift,
   Sparkles,
   Heart,
   Trophy,
@@ -26,270 +26,178 @@ import {
 } from 'lucide-react';
 import { motion } from 'framer-motion';
 import Navigation from '@/components/Navigation';
+import { useAuthStore } from '@/stores/authStore';
+import { api } from '@/services/api';
 
 const Shop = () => {
-  const [userCoins, setUserCoins] = useState(1250);
+  const { user, updateUserStats } = useAuthStore();
+  const { toast } = useToast();
+  const [shopItems, setShopItems] = useState<any[]>([]);
   const [purchasedItems, setPurchasedItems] = useState<string[]>([]);
+  const [loading, setLoading] = useState(false);
+  const [purchasing, setPurchasing] = useState<string | null>(null);
+  
+  const userCoins = user?.coins || 0;
 
-  const shopItems = {
-    avatars: [
-      {
-        id: 'avatar-1',
-        name: 'Happy Scholar',
-        description: 'Avatar ceria untuk pelajar rajin',
-        price: 500,
-        image: '😊',
-        rarity: 'common'
-      },
-      {
-        id: 'avatar-2',
-        name: 'Genius Master',
-        description: 'Avatar eksklusif untuk jenius',
-        price: 1500,
-        image: '🤓',
-        rarity: 'rare'
-      },
-      {
-        id: 'avatar-3',
-        name: 'Champion Elite',
-        description: 'Avatar legendaris juara',
-        price: 5000,
-        image: '👑',
-        rarity: 'legendary'
-      },
-      {
-        id: 'avatar-4',
-        name: 'Cool Student',
-        description: 'Avatar keren untuk siswa modern',
-        price: 750,
-        image: '😎',
-        rarity: 'common'
-      },
-      {
-        id: 'avatar-5',
-        name: 'Rocket Scientist',
-        description: 'Avatar untuk calon ilmuwan',
-        price: 2000,
-        image: '🚀',
-        rarity: 'rare'
-      },
-      {
-        id: 'avatar-6',
-        name: 'Brain Master',
-        description: 'Avatar untuk master otak',
-        price: 3000,
-        image: '🧠',
-        rarity: 'rare'
-      },
-      {
-        id: 'avatar-7',
-        name: 'Fire Scholar',
-        description: 'Avatar berapi-api untuk pelajar bersemangat',
-        price: 4000,
-        image: '🔥',
-        rarity: 'rare'
-      },
-      {
-        id: 'avatar-8',
-        name: 'Lightning Fast',
-        description: 'Avatar kilat untuk yang cepat belajar',
-        price: 6000,
-        image: '⚡',
-        rarity: 'legendary'
-      },
-      {
-        id: 'avatar-9',
-        name: 'Diamond Mind',
-        description: 'Avatar berlian untuk pikiran cemerlang',
-        price: 15000,
-        image: '💎',
-        rarity: 'legendary'
-      },
-      {
-        id: 'avatar-10',
-        name: 'Ultimate Scholar',
-        description: 'Avatar tertinggi untuk scholar sejati',
-        price: 50000,
-        image: '🏆',
-        rarity: 'legendary'
+  // Fetch shop items and user inventory
+  useEffect(() => {
+    const fetchShopData = async () => {
+      try {
+        setLoading(true);
+        
+        // Try to fetch shop items from API
+        try {
+          const itemsResponse = await api.get('/shop/items');
+          setShopItems(itemsResponse.data.items || []);
+          
+          const inventoryResponse = await api.get('/shop/inventory');
+          setPurchasedItems(inventoryResponse.data.purchasedItems || []);
+        } catch (apiError) {
+          console.log('API not available, using mock shop data');
+          // Fallback to mock data
+          setShopItems(getMockShopItems());
+          setPurchasedItems([]);
+        }
+        
+      } catch (error) {
+        console.error('Error fetching shop data:', error);
+        // Fallback to mock data
+        setShopItems(getMockShopItems());
+        setPurchasedItems([]);
+      } finally {
+        setLoading(false);
       }
-    ],
-    powerups: [
-      {
-        id: 'powerup-1',
-        name: 'Double XP',
-        description: 'Gandakan XP selama 1 jam',
-        price: 800,
-        icon: Zap,
-        duration: '1 jam',
-        rarity: 'common'
-      },
-      {
-        id: 'powerup-2',
-        name: 'Streak Shield',
-        description: 'Lindungi streak dari putus 1x',
-        price: 1200,
-        icon: Shield,
-        duration: 'Sekali pakai',
-        rarity: 'common'
-      },
-      {
-        id: 'powerup-3',
-        name: 'Time Freeze',
-        description: 'Tambah waktu 30 menit di try out',
-        price: 2500,
-        icon: Clock,
-        duration: 'Sekali pakai',
-        rarity: 'rare'
-      },
-      {
-        id: 'powerup-4',
-        name: 'Triple XP',
-        description: 'Gandakan XP 3x selama 30 menit',
-        price: 1500,
-        icon: Bolt,
-        duration: '30 menit',
-        rarity: 'rare'
-      },
-      {
-        id: 'powerup-5',
-        name: 'Focus Boost',
-        description: 'Tingkatkan akurasi jawaban 20%',
-        price: 2000,
-        icon: Target,
-        duration: '1 sesi',
-        rarity: 'rare'
-      },
-      {
-        id: 'powerup-6',
-        name: 'Mega Shield',
-        description: 'Lindungi streak dari putus 3x',
-        price: 3500,
-        icon: Heart,
-        duration: '3x pakai',
-        rarity: 'rare'
-      },
-      {
-        id: 'powerup-7',
-        name: 'Rocket Boost',
-        description: 'Selesaikan soal 50% lebih cepat',
-        price: 4500,
-        icon: Rocket,
-        duration: '1 try out',
-        rarity: 'legendary'
-      },
-      {
-        id: 'powerup-8',
-        name: 'Perfect Score',
-        description: 'Jaminan skor 100% untuk 1 quiz',
-        price: 8000,
-        icon: Star,
-        duration: 'Sekali pakai',
-        rarity: 'legendary'
-      },
-      {
-        id: 'powerup-9',
-        name: 'Ultimate Boost',
-        description: 'Kombinasi semua boost selama 1 hari',
-        price: 25000,
-        icon: Gem,
-        duration: '24 jam',
-        rarity: 'legendary'
-      },
-      {
-        id: 'powerup-10',
-        name: 'God Mode',
-        description: 'Unlimited power untuk 1 minggu',
-        price: 100000,
-        icon: Crown,
-        duration: '7 hari',
-        rarity: 'legendary'
-      }
-    ],
+    };
+    
+    if (user && shopItems.length === 0) {
+      fetchShopData();
+    }
+  }, [user, shopItems.length]);
 
-    badges: [
-      {
-        id: 'badge-1',
-        name: 'Study Master',
-        description: 'Badge untuk pelajar rajin',
-        price: 1000,
-        icon: Trophy,
-        rarity: 'common'
-      },
-      {
-        id: 'badge-2',
-        name: 'Quiz Champion',
-        description: 'Badge juara kuis',
-        price: 2000,
-        icon: Crown,
-        rarity: 'rare'
-      },
-      {
-        id: 'badge-3',
-        name: 'Legend Scholar',
-        description: 'Badge legendaris untuk scholar sejati',
-        price: 5000,
-        icon: Sparkles,
-        rarity: 'legendary'
-      },
-      {
-        id: 'badge-4',
-        name: 'Speed Demon',
-        description: 'Badge untuk yang cepat menyelesaikan soal',
-        price: 1500,
-        icon: Bolt,
-        rarity: 'common'
-      },
-      {
-        id: 'badge-5',
-        name: 'Streak Warrior',
-        description: 'Badge untuk master streak',
-        price: 2500,
-        icon: Flame,
-        rarity: 'rare'
-      },
-      {
-        id: 'badge-6',
-        name: 'Perfect Scorer',
-        description: 'Badge untuk yang sering dapat nilai sempurna',
-        price: 3000,
-        icon: Star,
-        rarity: 'rare'
-      },
-      {
-        id: 'badge-7',
-        name: 'Knowledge Hunter',
-        description: 'Badge untuk pemburu ilmu',
-        price: 3500,
-        icon: Target,
-        rarity: 'rare'
-      },
-      {
-        id: 'badge-8',
-        name: 'Elite Scholar',
-        description: 'Badge untuk scholar elite',
-        price: 7500,
-        icon: Award,
-        rarity: 'legendary'
-      },
-      {
-        id: 'badge-9',
-        name: 'Diamond Achiever',
-        description: 'Badge berlian untuk pencapaian tertinggi',
-        price: 15000,
-        icon: Diamond,
-        rarity: 'legendary'
-      },
-      {
-        id: 'badge-10',
-        name: 'Ultimate Master',
-        description: 'Badge tertinggi untuk master sejati',
-        price: 50000,
-        icon: Sword,
-        rarity: 'legendary'
-      }
-    ]
-  };
+  const getMockShopItems = () => [
+    // Avatars - Premium (sinkronisasi dengan HappyAvatarSelector)
+    { 
+      id: '50', 
+      name: '🕷️ Spiderman', 
+      category: 'avatar', 
+      price: 800, 
+      rarity: 'epic', 
+      description: 'Avatar Spiderman dengan kostum merah-biru ikonik',
+      url: 'https://api.dicebear.com/7.x/avataaars/svg?seed=Spiderman&mood=happy&eyes=happy&mouth=smile&skinColor=fdbcb4&hairColor=red&clothingColor=ff0000&accessoriesChance=100'
+    },
+    { 
+      id: '51', 
+      name: '🦇 Batman', 
+      category: 'avatar', 
+      price: 850, 
+      rarity: 'epic', 
+      description: 'Avatar Batman dengan jubah hitam legendaris',
+      url: 'https://api.dicebear.com/7.x/avataaars/svg?seed=Batman&mood=happy&eyes=happy&mouth=smile&skinColor=fdbcb4&hairColor=black&clothingColor=000000&accessoriesChance=100'
+    },
+    { 
+      id: '52', 
+      name: '🦸‍♂️ Superman', 
+      category: 'avatar', 
+      price: 900, 
+      rarity: 'epic', 
+      description: 'Avatar Superman dengan logo S di dada',
+      url: 'https://api.dicebear.com/7.x/avataaars/svg?seed=Superman&mood=happy&eyes=happy&mouth=smile&skinColor=fdbcb4&hairColor=black&clothingColor=0066cc&accessoriesChance=100'
+    },
+    { 
+      id: '53', 
+      name: '🤖 Iron Man', 
+      category: 'avatar', 
+      price: 950, 
+      rarity: 'epic', 
+      description: 'Avatar Iron Man dengan armor teknologi tinggi',
+      url: 'https://api.dicebear.com/7.x/avataaars/svg?seed=IronMan&mood=happy&eyes=happy&mouth=smile&skinColor=fdbcb4&hairColor=brown&clothingColor=cc0000&accessoriesChance=100'
+    },
+    { 
+      id: '54', 
+      name: '👸 Wonder Woman', 
+      category: 'avatar', 
+      price: 800, 
+      rarity: 'epic', 
+      description: 'Avatar Wonder Woman dengan tiara emas',
+      url: 'https://api.dicebear.com/7.x/avataaars/svg?seed=WonderWoman&mood=happy&eyes=happy&mouth=smile&skinColor=fdbcb4&hairColor=black&clothingColor=cc0000&accessoriesChance=100'
+    },
+    { 
+      id: '55', 
+      name: '🛡️ Captain America', 
+      category: 'avatar', 
+      price: 850, 
+      rarity: 'epic', 
+      description: 'Avatar Captain America dengan perisai vibranium',
+      url: 'https://api.dicebear.com/7.x/avataaars/svg?seed=CaptainAmerica&mood=happy&eyes=happy&mouth=smile&skinColor=fdbcb4&hairColor=blonde&clothingColor=0066cc&accessoriesChance=100'
+    },
+    { 
+      id: '56', 
+      name: '⚡ Thor', 
+      category: 'avatar', 
+      price: 1000, 
+      rarity: 'legendary', 
+      description: 'Avatar Thor dengan palu Mjolnir',
+      url: 'https://api.dicebear.com/7.x/avataaars/svg?seed=Thor&mood=happy&eyes=happy&mouth=smile&skinColor=fdbcb4&hairColor=blonde&clothingColor=cc0000&accessoriesChance=100'
+    },
+    { 
+      id: '57', 
+      name: '💚 Hulk', 
+      category: 'avatar', 
+      price: 900, 
+      rarity: 'epic', 
+      description: 'Avatar Hulk dengan kekuatan super',
+      url: 'https://api.dicebear.com/7.x/avataaars/svg?seed=Hulk&mood=happy&eyes=happy&mouth=smile&skinColor=00cc00&hairColor=black&clothingColor=663399&accessoriesChance=100'
+    },
+    { 
+      id: '58', 
+      name: '🐾 Black Panther', 
+      category: 'avatar', 
+      price: 950, 
+      rarity: 'epic', 
+      description: 'Avatar Black Panther dari Wakanda',
+      url: 'https://api.dicebear.com/7.x/avataaars/svg?seed=BlackPanther&mood=happy&eyes=happy&mouth=smile&skinColor=ae5d29&hairColor=black&clothingColor=000000&accessoriesChance=100'
+    },
+    { 
+      id: '59', 
+      name: '🔮 Doctor Strange', 
+      category: 'avatar', 
+      price: 1200, 
+      rarity: 'legendary', 
+      description: 'Avatar Doctor Strange dengan mantel levitasi',
+      url: 'https://api.dicebear.com/7.x/avataaars/svg?seed=DoctorStrange&mood=happy&eyes=happy&mouth=smile&skinColor=fdbcb4&hairColor=black&clothingColor=663399&accessoriesChance=100'
+    },
+    
+    // Power-ups
+    { id: '11', name: 'Double XP', category: 'powerup', price: 50, rarity: 'common', description: 'Gandakan XP selama 1 jam' },
+    { id: '12', name: 'Coin Booster', category: 'powerup', price: 75, rarity: 'common', description: 'Tambahan 50% koin selama 2 jam' },
+    { id: '13', name: 'Time Freeze', category: 'powerup', price: 100, rarity: 'rare', description: 'Bekukan waktu quiz selama 30 detik' },
+    { id: '14', name: 'Hint Master', category: 'powerup', price: 80, rarity: 'common', description: '3 hint gratis untuk quiz' },
+    { id: '15', name: 'Lucky Charm', category: 'powerup', price: 150, rarity: 'rare', description: 'Peluang jawaban benar +20%' },
+    { id: '16', name: 'Energy Drink', category: 'powerup', price: 60, rarity: 'common', description: 'Pulihkan semua energi' },
+    { id: '17', name: 'Mega Boost', category: 'powerup', price: 200, rarity: 'legendary', description: 'Triple XP dan koin selama 1 jam' },
+    { id: '18', name: 'Shield Protection', category: 'powerup', price: 120, rarity: 'rare', description: 'Lindungi streak dari 1 kesalahan' },
+    { id: '19', name: 'Speed Boost', category: 'powerup', price: 90, rarity: 'common', description: 'Kecepatan berpikir +30%' },
+    { id: '20', name: 'Focus Potion', category: 'powerup', price: 110, rarity: 'rare', description: 'Konsentrasi maksimal selama 2 jam' },
+    
+    // Badges
+    { id: '21', name: 'Badge Pemula', category: 'badge', price: 25, rarity: 'common', description: 'Badge untuk pemula yang bersemangat' },
+    { id: '22', name: 'Badge Matematika', category: 'badge', price: 150, rarity: 'rare', description: 'Badge master matematika' },
+    { id: '23', name: 'Badge Bahasa', category: 'badge', price: 150, rarity: 'rare', description: 'Badge ahli bahasa Indonesia' },
+    { id: '24', name: 'Badge Sains', category: 'badge', price: 150, rarity: 'rare', description: 'Badge ilmuwan muda' },
+    { id: '25', name: 'Badge Logika', category: 'badge', price: 200, rarity: 'rare', description: 'Badge master logika' },
+    { id: '26', name: 'Badge Champion', category: 'badge', price: 500, rarity: 'legendary', description: 'Badge juara sejati' },
+    { id: '27', name: 'Badge Genius', category: 'badge', price: 750, rarity: 'legendary', description: 'Badge untuk jenius' },
+    { id: '28', name: 'Badge Warrior', category: 'badge', price: 300, rarity: 'rare', description: 'Badge pejuang tangguh' },
+    { id: '29', name: 'Badge Scholar', category: 'badge', price: 400, rarity: 'rare', description: 'Badge cendekiawan' },
+    { id: '30', name: 'Badge Legend', category: 'badge', price: 1000, rarity: 'legendary', description: 'Badge legenda yang langka' }
+  ];
+  
+  // Group items by category with useMemo to prevent unnecessary re-renders
+  const groupedItems = useMemo(() => ({
+    avatars: shopItems.filter(item => item.category === 'avatar'),
+    powerups: shopItems.filter(item => item.category === 'powerup'),
+    badges: shopItems.filter(item => item.category === 'badge')
+  }), [shopItems]);
 
   const getRarityColor = (rarity: string) => {
     switch (rarity) {
@@ -300,19 +208,110 @@ const Shop = () => {
     }
   };
 
-  const handlePurchase = (itemId: string, price: number) => {
-    if (userCoins >= price && !purchasedItems.includes(itemId)) {
-      setUserCoins(prev => prev - price);
-      setPurchasedItems(prev => [...prev, itemId]);
+  const handlePurchase = async (itemId: string, price: number) => {
+    if (purchasing || userCoins < price || purchasedItems.includes(itemId)) {
+      return;
+    }
+    
+    if (userCoins < price) {
+      toast({
+        title: 'Koin Tidak Cukup',
+        description: `Anda membutuhkan ${price - userCoins} koin lagi untuk membeli item ini.`,
+        variant: 'destructive'
+      });
+      return;
+    }
+    
+    try {
+      setPurchasing(itemId);
+      
+      try {
+        const response = await api.post(`/shop/purchase/${itemId}`);
+        
+        if (response.data.success) {
+          // Update local state
+          setPurchasedItems(prev => [...prev, itemId]);
+          
+          // Update user coins in auth store
+          updateUserStats({
+            coins: response.data.newCoins
+          });
+          
+          toast({
+            title: 'Pembelian Berhasil!',
+            description: `Anda telah berhasil membeli ${response.data.item.name}`,
+          });
+        }
+      } catch (apiError) {
+        console.log('API not available, simulating purchase');
+        // Simulate purchase delay
+        await new Promise(resolve => setTimeout(resolve, 1000));
+        
+        const item = shopItems.find(item => item.id === itemId);
+        
+        // Update local state
+        setPurchasedItems(prev => [...prev, itemId]);
+        
+        // Update user coins in auth store
+        updateUserStats({
+          coins: userCoins - price
+        });
+        
+        toast({
+          title: 'Pembelian Berhasil!',
+          description: `Anda telah berhasil membeli ${item?.name || 'item'}`,
+        });
+      }
+    } catch (error: any) {
+      console.error('Error purchasing item:', error);
+      toast({
+        title: 'Pembelian Gagal',
+        description: 'Gagal membeli item. Silakan coba lagi.',
+        variant: 'destructive'
+      });
+    } finally {
+      setPurchasing(null);
     }
   };
 
+  const getIconComponent = (iconName: string) => {
+    const iconMap: { [key: string]: any } = {
+      Zap, Shield, Clock, Bolt, Target, Heart, Rocket, Star, Gem, Crown,
+      Trophy, Sparkles, Flame, Award, Diamond, Sword
+    };
+    return iconMap[iconName] || Trophy;
+  };
+
   const renderShopSection = (items: any[], type: string) => {
+    if (loading) {
+      return (
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+          {[...Array(6)].map((_, index) => (
+            <Card key={index} className="h-full">
+              <CardContent className="p-6">
+                <div className="animate-pulse">
+                  <div className="h-4 bg-gray-200 rounded mb-4"></div>
+                  <div className="h-16 bg-gray-200 rounded mb-4"></div>
+                  <div className="h-4 bg-gray-200 rounded mb-2"></div>
+                  <div className="h-3 bg-gray-200 rounded mb-4"></div>
+                  <div className="flex justify-between items-center">
+                    <div className="h-4 bg-gray-200 rounded w-16"></div>
+                    <div className="h-8 bg-gray-200 rounded w-20"></div>
+                  </div>
+                </div>
+              </CardContent>
+            </Card>
+          ))}
+        </div>
+      );
+    }
+
     return (
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
         {items.map((item, index) => {
           const isPurchased = purchasedItems.includes(item.id);
           const canAfford = userCoins >= item.price;
+          const isPurchasing = purchasing === item.id;
           
           return (
             <motion.div
@@ -340,15 +339,11 @@ const Shop = () => {
                     {type === 'avatars' && (
                       <div className="text-4xl mb-2">{item.image}</div>
                     )}
-                    {type === 'powerups' && (
+                    {(type === 'powerups' || type === 'badges') && (
                       <div className="p-4 bg-gray-100 rounded-full w-fit mx-auto mb-2">
-                        <item.icon className="h-8 w-8 text-blue-500" />
-                      </div>
-                    )}
-
-                    {type === 'badges' && (
-                      <div className="p-4 bg-gray-100 rounded-full w-fit mx-auto mb-2">
-                        <item.icon className="h-8 w-8 text-yellow-500" />
+                        {React.createElement(getIconComponent(item.icon), {
+                          className: `h-8 w-8 ${type === 'powerups' ? 'text-blue-500' : 'text-yellow-500'}`
+                        })}
                       </div>
                     )}
                   </div>
@@ -368,11 +363,11 @@ const Shop = () => {
                     
                     <Button 
                       size="sm"
-                      disabled={isPurchased || !canAfford}
+                      disabled={isPurchased || !canAfford || isPurchasing}
                       onClick={() => handlePurchase(item.id, item.price)}
                       className={isPurchased ? 'bg-green-500 hover:bg-green-600' : ''}
                     >
-                      {isPurchased ? 'Owned' : canAfford ? 'Buy' : 'Not enough coins'}
+                      {isPurchasing ? 'Buying...' : isPurchased ? 'Owned' : canAfford ? 'Buy' : 'Not enough coins'}
                     </Button>
                   </div>
                 </CardContent>
@@ -385,7 +380,7 @@ const Shop = () => {
   };
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-blue-50 via-white to-purple-50">
+    <div className="min-h-screen bg-gradient-to-br from-blue-50 via-white to-purple-50 no-blink">
       <Navigation />
       
       <div className="container mx-auto px-4 py-8">
@@ -394,7 +389,8 @@ const Shop = () => {
           <motion.div
             initial={{ opacity: 0, y: -20 }}
             animate={{ opacity: 1, y: 0 }}
-            className="flex items-center justify-center gap-3 mb-4"
+            transition={{ duration: 0.3, ease: "easeOut" }}
+            className="flex items-center justify-center gap-3 mb-4 will-change-transform"
           >
             <ShoppingBag className="h-8 w-8 text-blue-500" />
             <h1 className="text-4xl font-bold bg-gradient-to-r from-blue-600 to-purple-600 bg-clip-text text-transparent">
@@ -432,7 +428,7 @@ const Shop = () => {
               <h2 className="text-2xl font-semibold mb-2">Avatar Collection</h2>
               <p className="text-muted-foreground">Pilih avatar yang mencerminkan kepribadianmu</p>
             </div>
-            {renderShopSection(shopItems.avatars, 'avatars')}
+            {renderShopSection(groupedItems.avatars, 'avatars')}
           </TabsContent>
 
           <TabsContent value="powerups" className="space-y-6">
@@ -440,7 +436,7 @@ const Shop = () => {
               <h2 className="text-2xl font-semibold mb-2">Power-ups</h2>
               <p className="text-muted-foreground">Tingkatkan performa belajarmu dengan power-ups</p>
             </div>
-            {renderShopSection(shopItems.powerups, 'powerups')}
+            {renderShopSection(groupedItems.powerups, 'powerups')}
           </TabsContent>
 
           <TabsContent value="badges" className="space-y-6">
@@ -448,7 +444,7 @@ const Shop = () => {
               <h2 className="text-2xl font-semibold mb-2">Achievement Badges</h2>
               <p className="text-muted-foreground">Koleksi badge untuk menunjukkan pencapaianmu</p>
             </div>
-            {renderShopSection(shopItems.badges, 'badges')}
+            {renderShopSection(groupedItems.badges, 'badges')}
           </TabsContent>
         </Tabs>
       </div>

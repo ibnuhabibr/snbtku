@@ -1,6 +1,12 @@
-import { User } from 'firebase/auth';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { cn } from '@/lib/utils';
+
+type User = {
+  id: string;
+  email: string;
+  name?: string;
+  avatar?: string;
+};
 
 type UserAvatarProps = {
   user: User | null;
@@ -19,9 +25,9 @@ const UserAvatar = ({ user, className }: UserAvatarProps) => {
 
   return (
     <Avatar className={cn('border border-border', className)}>
-      <AvatarImage src={user?.photoURL || undefined} alt={user?.displayName || 'User'} />
+      <AvatarImage src={user?.avatar || undefined} alt={user?.name || 'User'} />
       <AvatarFallback className="bg-primary/10 text-primary">
-        {getInitials(user?.displayName)}
+        {getInitials(user?.name || '')}
       </AvatarFallback>
     </Avatar>
   );

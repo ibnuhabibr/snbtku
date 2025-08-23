@@ -3,6 +3,7 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Link } from "react-router-dom";
+import Navigation from "@/components/Navigation";
 import {
   Users,
   BookOpen,
@@ -103,12 +104,13 @@ const About = () => {
   }, []);
 
   return (
-    <div className="min-h-screen bg-background">
+    <div className="min-h-screen bg-gray-50 pt-20 md:pt-24">
+      <Navigation />
       {/* Hero Section */}
       <section className="relative py-12 md:py-20 bg-gradient-to-br from-primary/5 via-background to-accent/5">
         <div className="absolute inset-0 bg-[radial-gradient(circle_at_30%_20%,hsl(var(--primary)/0.1),transparent_50%),radial-gradient(circle_at_70%_80%,hsl(var(--accent)/0.1),transparent_50%)]" />
         
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 relative">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 relative pt-24 md:pt-20">
           <div className="text-center space-y-6 md:space-y-8">
             <Badge variant="secondary" className="px-3 md:px-4 py-2 text-xs md:text-sm font-medium">
               🎓 Tentang SNBTKU

@@ -3,7 +3,7 @@
  */
 
 import { SubtestType, DifficultyLevel } from './material';
-import { Question, UserAnswer } from './practice';
+import { UserAnswer } from './practice';
 
 // Status tryout
 export type TryoutStatus = 'available' | 'scheduled' | 'completed';
